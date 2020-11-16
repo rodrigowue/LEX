@@ -1,16 +1,17 @@
 #include "transistor.h"
+#include <string>
 
-
-void Transistor::Transistor(string alias,
-						string source,
-						string drain,
-						string gate,
-						string bulk,
-						string type, //PMOS,NMOS,LVT,HVT
-						double diff_width,
-						int fingers,
-						double gate_lenght,
-						int stack){
+Transistor::Transistor(string alias, string source, string drain, string gate, string bulk, string type, double diff_width, int fingers, double gate_lenght, int stack){
+		Transistor::alias = alias;
+		Transistor::source = source;
+		Transistor::drain = drain;
+		Transistor::gate = gate;
+		Transistor::bulk = bulk;
+		Transistor::type = type;
+		Transistor::diff_width = diff_width;
+		Transistor::fingers = fingers;
+		Transistor::gate_lenght = gate_lenght;
+		Transistor::stack = stack;
 
 }
 

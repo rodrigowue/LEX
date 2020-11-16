@@ -80,9 +80,10 @@ int main(int argc, char** argv)
 			string bulk;
 			string type; //PMOS,NMOS,LVT,HVT
 			double diff_width;
-			int fingers;
+			int fingers=0;
 			double gate_lenght;
-			int stack;
+			int stack=0;
+			char * tail;
   			
   			alias = token;
   			lineStream >> token;
@@ -108,20 +109,35 @@ int main(int argc, char** argv)
 
 			while(lineStream >> token){
         		if (token.find("L=") != string::npos) {
+
         			token.erase(token.begin(),token.begin()+2);
-        			cout << "Gate Lenght: " << token << endl; 
+        			gate_lenght = strtod(token.c_str(),&tail);
+        			cout << "Gate Lenght: " << gate_lenght << endl; 
 				}
 				else if (token.find("W=") != string::npos)
 				{
         			token.erase(token.begin(),token.begin()+2);
-        			cout << "Width: " << token << endl; 
+        			diff_width = strtod(token.c_str(),&tail);
+        			cout << "Width: " << diff_width << endl; 
 				}
 				else if (token.find("F=") != string::npos)
 				{
         			token.erase(token.begin(),token.begin()+2);
-        			cout << "Fingers: " << token << endl;
+        			fingers = atoi(token.c_str());
+        			cout << "Fingers: " << fingers << endl;
 				}
 			}
+			if(type[0]=='P'){
+				Transistor p_transistor(alias, source, drain, gate, bulk, type, diff_width, fingers, gate_lenght, stack);
+				PUN.push_back(p_transistor);
+				cout << "PMOS ADDED TO PUN LIST" << endl;
+			}
+			else{
+				Transistor n_transistor(alias, source, drain,	gate, bulk,	type, diff_width, fingers, gate_lenght, stack);
+				PDN.push_back(n_transistor);
+				cout << "NMOS ADDED TO PDN LIST" << endl;
+			}
+
 			cout << endl;
   		}
   		//------------------------------------------------------------------

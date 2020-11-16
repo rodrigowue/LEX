@@ -1,5 +1,9 @@
+#ifndef TRANSISTOR_H
+#define TRANSISTOR_H
 #include <iostream>
+#include <string>
 using namespace std;
+
 
 class Transistor {
 	string alias;
@@ -15,16 +19,8 @@ class Transistor {
 
 	public:
 		Transistor();
-		Transistor(string alias,
-						string source,
-						string drain,
-						string gate,
-						string bulk,
-						string type, //PMOS,NMOS,LVT,HVT
-						double diff_width,
-						int fingers,
-						double gate_lenght,
-						int stack);
+		Transistor(string alias, string source, string drain, string gate, string bulk, string type, double diff_width,	int fingers, double gate_lenght, int stack);
+
 		void set_alias(string alias);
 		void set_source(string source);
 		void set_drain(string drain);
@@ -47,3 +43,5 @@ class Transistor {
 		double get_gate_lenght();
 		int get_stack();
 };
+
+#endif
