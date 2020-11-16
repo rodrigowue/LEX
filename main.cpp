@@ -79,9 +79,9 @@ int main(int argc, char** argv)
 			string gate;
 			string bulk;
 			string type; //PMOS,NMOS,LVT,HVT
-			float diff_width;
+			double diff_width;
 			int fingers;
-			float gate_lenght;
+			double gate_lenght;
 			int stack;
   			
   			alias = token;

@@ -8,9 +8,9 @@ class Transistor {
 	string gate;
 	string bulk;
 	string type; //PMOS,NMOS,LVT,HVT
-	float diff_width;
+	double diff_width;
 	int fingers;
-	float gate_lenght;
+	double gate_lenght;
 	int stack;
 
 	public:
@@ -21,9 +21,9 @@ class Transistor {
 						string gate,
 						string bulk,
 						string type, //PMOS,NMOS,LVT,HVT
-						float diff_width,
+						double diff_width,
 						int fingers,
-						float gate_lenght,
+						double gate_lenght,
 						int stack);
 		void set_alias(string alias);
 		void set_source(string source);
@@ -31,9 +31,9 @@ class Transistor {
 		void set_gate(string gate);
 		void set_bulk(string bulk);
 		void set_type(string type);
-		void set_diff_width(float width);
+		void set_diff_width(double width);
 		void set_fingers(int fingers);
-		void set_gate_lenght(float gate_lenght);
+		void set_gate_lenght(double gate_lenght);
 		void set_stack(int stack);
 
 		string get_alias();
@@ -42,8 +42,8 @@ class Transistor {
 		string get_gate();
 		string get_bulk();
 		string get_type();
-		float get_diff_width();
+		double get_diff_width();
 		int get_fingers();
-		float get_gate_lenght();
+		double get_gate_lenght();
 		int get_stack();
 };
