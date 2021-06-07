@@ -1,4 +1,4 @@
- 
+
 #include <iostream>
 #include <fstream>
 #include <stdio.h>
@@ -9,6 +9,7 @@
 #include <iterator>
 #include <algorithm>
 #include "transistor.h"
+#include "stlGraph.h"
 using namespace std;
 
 
@@ -46,13 +47,13 @@ int main(int argc, char** argv)
     		{
         		if (token.find(":I") != string::npos) {
         			token.erase(token.end()-2,token.end());
-        			// cout << "INPUT:" << token << endl; 
+        			// cout << "INPUT:" << token << endl;
         			in_pins.push_back(token);
 				}
 				else if (token.find(":O") != string::npos)
 				{
         			token.erase(token.end()-2,token.end());
-        			// cout << "OUTPUT:" << token << endl; 
+        			// cout << "OUTPUT:" << token << endl;
         			out_pins.push_back(token);
 				}
 				else if (token.find(":P") != string::npos)
@@ -64,7 +65,7 @@ int main(int argc, char** argv)
 				else if (token.find(":G") != string::npos)
 				{
         			token.erase(token.end()-2,token.end());
-        			// cout << "GROUND:" << token << endl; 
+        			// cout << "GROUND:" << token << endl;
         			ground_pins.push_back(token);
 				}
     		}
@@ -73,18 +74,18 @@ int main(int argc, char** argv)
   		//IF FIRST LINE TOKEN STARTS WITH "M" (Transistor)
   		//------------------------------------------------------------------
   		else if(token[0]=='M'){
-  			string alias;
-			string source;
-			string drain;
-			string gate;
-			string bulk;
-			string type; //PMOS,NMOS,LVT,HVT
-			double diff_width;
-			int fingers=0;
-			double gate_lenght;
-			int stack=0;
-			char * tail;
-  			
+        string alias;
+        string source;
+        string drain;
+        string gate;
+        string bulk;
+        string type; //PMOS,NMOS,LVT,HVT
+        double diff_width;
+        int fingers=0;
+        double gate_lenght;
+        int stack=0;
+        char * tail;
+
   			alias = token;
   			lineStream >> token;
   			source = token;
@@ -112,13 +113,13 @@ int main(int argc, char** argv)
 
         			token.erase(token.begin(),token.begin()+2);
         			gate_lenght = strtod(token.c_str(),&tail);
-        			cout << "Gate Lenght: " << gate_lenght << endl; 
+        			cout << "Gate Lenght: " << gate_lenght << endl;
 				}
 				else if (token.find("W=") != string::npos)
 				{
         			token.erase(token.begin(),token.begin()+2);
         			diff_width = strtod(token.c_str(),&tail);
-        			cout << "Width: " << diff_width << endl; 
+        			cout << "Width: " << diff_width << endl;
 				}
 				else if (token.find("F=") != string::npos)
 				{
@@ -149,6 +150,34 @@ int main(int argc, char** argv)
 
     	}
     	std::cout << "\n";
-	}
-    return 0;
+	   }
+
+	   //------------------------------------------------------------------
+     int V = 5;
+     vector<pair<int, int> > adj[V];
+     int x=0;
+
+     cout << "----------------------------------------" << endl;
+     cout << "PMOS:" << endl;
+     for (auto it = begin(PUN); it != end(PUN); ++it){
+      cout << x << ":" << it->get_alias() << " " << it->get_source() << " " << it->get_drain() << endl;
+      x++;
+     }
+
+     cout << "NMOS:" << endl;
+     for (auto it = begin(PDN); it != end(PDN); ++it){
+      cout << x << ":" << it->get_alias() << " " << it->get_source() << " " << it->get_drain() << endl;
+      x++;
+     }
+
+     cout << "----------------------------------------" << endl;
+     addEdge(adj, 0, 1, 10);
+     addEdge(adj, 0, 4, 20);
+     addEdge(adj, 1, 2, 30);
+     addEdge(adj, 1, 3, 40);
+     addEdge(adj, 1, 4, 50);
+     addEdge(adj, 2, 3, 60);
+     addEdge(adj, 3, 4, 70);
+     printGraph(adj, V);
+     return 0;
     }
