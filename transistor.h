@@ -19,6 +19,7 @@ class Transistor {
 
 	public:
 		Transistor();
+		
 		Transistor(string alias, string source, string drain, string gate, string bulk, string type, double diff_width,	int fingers, double gate_lenght, int stack);
 
 		void set_alias(string alias);

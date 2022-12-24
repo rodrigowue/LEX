@@ -8,6 +8,7 @@
 #include <vector>
 #include <iterator>
 #include <algorithm>
+#include <bits/stdc++.h>
 #include "transistor.h"
 #include "stlGraph.h"
 using namespace std;
@@ -30,28 +31,104 @@ bool check_series(Transistor A, Transistor B){
 	}
 }
 
-string find_expression(vector<Transistor> PDN, vector<Transistor> PUN){
-	string expression;
-	Transistor A = PDN.front();
-	for (auto it = begin(PDN)+1; it != end(PDN); ++it){
-	  Transistor B = *it;
-	  if (check_parallel(A,B) == true){
-		cout << A.get_alias() <<  "+" << B.get_alias() << endl;
-		expression.append(A.get_alias());
-		expression.append("+");
-		expression.append(B.get_alias());
-	  }
-	  else if (check_series(A,B) == true){
-		expression.append(A.get_alias());
-		expression.append(".");
-		expression.append(B.get_alias());
-	  }
-	  else{
-		cout << "not correlated items" << endl;
-	  }
-    }
 
-	return expression;
+string find_expression(vector<Transistor> PDN, vector<Transistor> PUN){
+	vector<Transistor> PDN_TEMP = PDN;
+	vector<Transistor> PUN_TEMP = PUN;
+    string alias = "";
+    string source = "";
+    string drain = "";
+    string gate = "";
+    string bulk = "";
+    string type = "";
+	double diff_width = 0.0;
+    int fingers=0;
+    double gate_lenght = 0.0;
+    int stack=0;
+	string expression;
+	int size = PDN_TEMP.size();
+	while (PDN_TEMP.size() != 1){
+		Transistor A = PDN_TEMP.front();
+		for (auto it = begin(PDN_TEMP)+1; it != end(PDN_TEMP); ++it){
+	  		Transistor B = *it;
+	  		if (check_parallel(A,B) == true){
+				expression.append(A.get_gate());
+				expression.append("+");
+				expression.append(B.get_gate());
+				alias = "";
+				alias.append("(");
+				alias.append(A.get_gate());
+				alias.append("+");
+				alias.append(B.get_gate());
+				alias.append(")");
+				gate = alias;
+				source = A.get_source();
+				drain  = A.get_drain();
+				Transistor group_transistor(alias, source, drain, gate, bulk, type, diff_width, fingers, gate_lenght, stack);
+				PDN_TEMP.shrink_to_fit();
+				PDN_TEMP.push_back(group_transistor);
+				for (auto it_rm = begin(PDN_TEMP); it_rm != end(PDN_TEMP);){
+					if (it_rm->get_alias() == B.get_alias()){
+    					PDN_TEMP.erase(it_rm);
+					}
+					else if(it_rm->get_alias() == A.get_alias()){
+						PDN_TEMP.erase(it_rm);
+					}
+					else{
+						it_rm++;
+					}
+				}
+			if (PDN_TEMP.size() > 1){
+				find_expression(PDN_TEMP, PUN_TEMP);
+			}
+			else{
+				return (PDN_TEMP.front()).get_alias();
+			} 
+	  		}
+	  	else if (check_series(A,B) == true){
+			expression.append(A.get_gate());
+			expression.append(".");
+			expression.append(B.get_gate());
+			alias = "";
+			alias.append("(");
+			alias.append(A.get_gate());
+			alias.append(".");
+			alias.append(B.get_gate());
+			alias.append(")");
+			gate = alias;
+			source = A.get_source();
+			drain  = B.get_drain();
+			Transistor group_transistor(alias, source, drain, gate, bulk, type, diff_width, fingers, gate_lenght, stack);
+			PDN_TEMP.shrink_to_fit();
+			PDN_TEMP.push_back(group_transistor);
+
+			for (auto it_rm = begin(PDN_TEMP); it_rm != end(PDN_TEMP);){
+				if (it_rm->get_alias() == B.get_alias()){
+    				PDN_TEMP.erase(it_rm);
+				}
+				else if(it_rm->get_alias() == A.get_alias()){
+					PDN_TEMP.erase(it_rm);
+				}
+				else{
+					it_rm++;
+				}
+			}
+
+			if (PDN_TEMP.size() > 1){
+				find_expression(PDN_TEMP, PUN_TEMP);
+			}
+			else{
+				return (PDN_TEMP.front()).get_alias();
+			}
+			
+	  	}
+	  	else{
+			cout << "not correlated items" << endl;
+			break;
+	  	}
+    	}
+	}
+	return (PDN_TEMP.front()).get_alias();
 }
 
 int main(int argc, char** argv)
