@@ -12,6 +12,47 @@
 #include "stlGraph.h"
 using namespace std;
 
+bool check_parallel(Transistor A, Transistor B){
+	if ((( A.get_source() == B.get_source() ) && ( A.get_drain() == B.get_drain())) | (( A.get_drain() == B.get_source() ) && ( A.get_source() == B.get_drain()))){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
+
+bool check_series(Transistor A, Transistor B){
+	if ((( A.get_source() == B.get_source() ) ^ ( A.get_drain() == B.get_drain())) ^ (( A.get_source() == B.get_drain() ) ^ ( A.get_drain() == B.get_source()))){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
+
+string find_expression(vector<Transistor> PDN, vector<Transistor> PUN){
+	string expression;
+	Transistor A = PDN.front();
+	for (auto it = begin(PDN)+1; it != end(PDN); ++it){
+	  Transistor B = *it;
+	  if (check_parallel(A,B) == true){
+		cout << A.get_alias() <<  "+" << B.get_alias() << endl;
+		expression.append(A.get_alias());
+		expression.append("+");
+		expression.append(B.get_alias());
+	  }
+	  else if (check_series(A,B) == true){
+		expression.append(A.get_alias());
+		expression.append(".");
+		expression.append(B.get_alias());
+	  }
+	  else{
+		cout << "not correlated items" << endl;
+	  }
+    }
+
+	return expression;
+}
 
 int main(int argc, char** argv)
 	{
@@ -171,13 +212,16 @@ int main(int argc, char** argv)
      }
 
      cout << "----------------------------------------" << endl;
-     addEdge(adj, 0, 1, 10);
-     addEdge(adj, 0, 4, 20);
-     addEdge(adj, 1, 2, 30);
-     addEdge(adj, 1, 3, 40);
-     addEdge(adj, 1, 4, 50);
-     addEdge(adj, 2, 3, 60);
-     addEdge(adj, 3, 4, 70);
-     printGraph(adj, V);
-     return 0;
+	/* In the future we could iterate the PDN until there is only one transistor left. 
+	At each iteration it will replace 2 transistors from the vector for a 
+	macro transistor (by macro it is a normal transistor but the alias will be the expression like "(MN1.MN2)")
+	So: If found a parallel or series pair, remove than and create another transistor*/
+
+	//NOTE THAT THIS IS THE CMOS ARRANJMENT ONLY, THE ACTUAL EXPRESSION is negated of that:
+	cout << "Expression: " << find_expression(PDN,PUN) << endl;
+
+     
+
+    return 0;
     }
+
