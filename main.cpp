@@ -128,6 +128,7 @@ string find_expression(vector<Transistor> PDN, vector<Transistor> PUN){
 	return expression;
 }
 
+
 int main(int argc, char** argv)
 	{
 	string line;
@@ -213,7 +214,7 @@ int main(int argc, char** argv)
   			lineStream >> token;
   			type = token;
 
-  			//========================================
+  			/*========================================
   			cout << "Transistor: " << endl;
   			cout << "Alias:" << alias << endl;
   			cout << "Source:" << source << endl;
@@ -221,40 +222,38 @@ int main(int argc, char** argv)
   			cout << "Drain:" << drain << endl;
   			cout << "Bulk:" << bulk << endl;
   			cout << "Type:" << type << endl;
-			//========================================
+			*/
 
 			while(lineStream >> token){
         		if (token.find("L=") != string::npos) {
 
         			token.erase(token.begin(),token.begin()+2);
         			gate_lenght = strtod(token.c_str(),&tail);
-        			cout << "Gate Lenght: " << gate_lenght << endl;
+        			//cout << "Gate Lenght: " << gate_lenght << endl;
 				}
 				else if (token.find("W=") != string::npos)
 				{
         			token.erase(token.begin(),token.begin()+2);
         			diff_width = strtod(token.c_str(),&tail);
-        			cout << "Width: " << diff_width << endl;
+        			//cout << "Width: " << diff_width << endl;
 				}
 				else if (token.find("F=") != string::npos)
 				{
         			token.erase(token.begin(),token.begin()+2);
         			fingers = atoi(token.c_str());
-        			cout << "Fingers: " << fingers << endl;
+        			//cout << "Fingers: " << fingers << endl;
 				}
 			}
 			if(type[0]=='P'){
 				Transistor p_transistor(alias, source, drain, gate, bulk, type, diff_width, fingers, gate_lenght, stack);
 				PUN.push_back(p_transistor);
-				cout << "PMOS ADDED TO PUN LIST" << endl;
+				//cout << "PMOS ADDED TO PUN LIST" << endl;
 			}
 			else{
 				Transistor n_transistor(alias, source, drain,	gate, bulk,	type, diff_width, fingers, gate_lenght, stack);
 				PDN.push_back(n_transistor);
-				cout << "NMOS ADDED TO PDN LIST" << endl;
+				//cout << "NMOS ADDED TO PDN LIST" << endl;
 			}
-
-			cout << endl;
   		}
   		//------------------------------------------------------------------
   		else if(token == ".SUBCKT"){
@@ -264,7 +263,7 @@ int main(int argc, char** argv)
   		else{
 
     	}
-    	std::cout << "\n";
+    	//std::cout << "\n";
 	   }
 
 	   //------------------------------------------------------------------
