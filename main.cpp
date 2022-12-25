@@ -23,7 +23,7 @@ bool check_parallel(Transistor A, Transistor B){
 }
 
 bool check_series(Transistor A, Transistor B){
-	if ((( A.get_source() == B.get_source() ) ^ ( A.get_drain() == B.get_drain())) ^ (( A.get_source() == B.get_drain() ) ^ ( A.get_drain() == B.get_source()))){
+	if ((( A.get_source() == B.get_source() ) | ( A.get_drain() == B.get_drain())) | (( A.get_source() == B.get_drain() ) | ( A.get_drain() == B.get_source()))){
 		return true;
 	}
 	else{
@@ -31,6 +31,21 @@ bool check_series(Transistor A, Transistor B){
 	}
 }
 
+vector<Transistor> remove_two_items(vector<Transistor> PDN, Transistor A, Transistor B){
+	for (auto it_rm = begin(PDN); it_rm != end(PDN); ){
+		if (it_rm->get_alias() == B.get_alias()){
+    		PDN.erase(it_rm);
+			}
+		else if(it_rm->get_alias() == A.get_alias()){
+			PDN.erase(it_rm);
+			}
+		else{
+			it_rm++;
+			}
+		}
+
+	return PDN;
+}
 
 string find_expression(vector<Transistor> PDN, vector<Transistor> PUN){
 	vector<Transistor> PDN_TEMP = PDN;
@@ -47,9 +62,10 @@ string find_expression(vector<Transistor> PDN, vector<Transistor> PUN){
     int stack=0;
 	string expression;
 	int size = PDN_TEMP.size();
-	while (PDN_TEMP.size() != 1){
-		Transistor A = PDN_TEMP.front();
-		for (auto it = begin(PDN_TEMP)+1; it != end(PDN_TEMP); ++it){
+	auto a_pointer = PDN_TEMP.begin();
+	if (PDN_TEMP.size() > 1){
+		Transistor A = *a_pointer;
+		for (auto it = begin(PDN_TEMP)+1; (it != end(PDN_TEMP)); ++it){
 	  		Transistor B = *it;
 	  		if (check_parallel(A,B) == true){
 				expression.append(A.get_gate());
@@ -66,24 +82,16 @@ string find_expression(vector<Transistor> PDN, vector<Transistor> PUN){
 				drain  = A.get_drain();
 				Transistor group_transistor(alias, source, drain, gate, bulk, type, diff_width, fingers, gate_lenght, stack);
 				PDN_TEMP.shrink_to_fit();
-				PDN_TEMP.push_back(group_transistor);
-				for (auto it_rm = begin(PDN_TEMP); it_rm != end(PDN_TEMP);){
-					if (it_rm->get_alias() == B.get_alias()){
-    					PDN_TEMP.erase(it_rm);
-					}
-					else if(it_rm->get_alias() == A.get_alias()){
-						PDN_TEMP.erase(it_rm);
-					}
-					else{
-						it_rm++;
-					}
+				PDN_TEMP.push_back(group_transistor); // insert the merged item
+				PDN_TEMP = remove_two_items(PDN_TEMP, A, B); //remove the two items that were merged
+				if (PDN_TEMP.size() == 1){
+					return (PDN_TEMP.front()).get_alias();
+					break;
 				}
-			if (PDN_TEMP.size() > 1){
-				find_expression(PDN_TEMP, PUN_TEMP);
-			}
-			else{
-				return (PDN_TEMP.front()).get_alias();
-			} 
+				else{
+					expression = find_expression(PDN_TEMP,PUN_TEMP);
+					break;
+				}
 	  		}
 	  	else if (check_series(A,B) == true){
 			expression.append(A.get_gate());
@@ -101,34 +109,23 @@ string find_expression(vector<Transistor> PDN, vector<Transistor> PUN){
 			Transistor group_transistor(alias, source, drain, gate, bulk, type, diff_width, fingers, gate_lenght, stack);
 			PDN_TEMP.shrink_to_fit();
 			PDN_TEMP.push_back(group_transistor);
-
-			for (auto it_rm = begin(PDN_TEMP); it_rm != end(PDN_TEMP);){
-				if (it_rm->get_alias() == B.get_alias()){
-    				PDN_TEMP.erase(it_rm);
-				}
-				else if(it_rm->get_alias() == A.get_alias()){
-					PDN_TEMP.erase(it_rm);
-				}
-				else{
-					it_rm++;
-				}
-			}
-
-			if (PDN_TEMP.size() > 1){
-				find_expression(PDN_TEMP, PUN_TEMP);
+			PDN_TEMP = remove_two_items(PDN_TEMP, A, B); //remove the two items that were merged
+			if (PDN_TEMP.size() == 1){
+				return (PDN_TEMP.front()).get_alias();
+				break;
 			}
 			else{
-				return (PDN_TEMP.front()).get_alias();
+				expression = find_expression(PDN_TEMP,PUN_TEMP);
+				break;
 			}
-			
 	  	}
 	  	else{
 			cout << "not correlated items" << endl;
-			break;
+			a_pointer++;
 	  	}
     	}
 	}
-	return (PDN_TEMP.front()).get_alias();
+	return expression;
 }
 
 int main(int argc, char** argv)
