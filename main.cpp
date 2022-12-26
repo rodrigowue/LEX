@@ -179,7 +179,7 @@ int main(int argc, char** argv)
 	cout << "PDN Expression: " << find_expression(PDN) << endl;
 	cout << "PUN Expression: " << find_expression(PUN) << endl;
 	cout << "----------------------------------------" << endl;
-	cout << "Expression: " << find_expression(PUN) << "*(!(" << find_expression(PDN) << "))" << endl;
+	cout << "Expression: !(" << find_expression(PUN) << "*" << find_expression(PDN) << ")" << endl;
 
      
 
