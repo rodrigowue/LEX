@@ -86,12 +86,12 @@ string find_expression(vector<Transistor> PDN){
 	  		}
 	  	else if (check_series(A,B) == true){
 			expression.append(A.get_gate());
-			expression.append(".");
+			expression.append("*");
 			expression.append(B.get_gate());
 			alias = "";
 			alias.append("(");
 			alias.append(A.get_gate());
-			alias.append(".");
+			alias.append("*");
 			alias.append(B.get_gate());
 			alias.append(")");
 			gate = alias;
