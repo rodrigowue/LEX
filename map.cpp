@@ -39,9 +39,8 @@ vector<Transistor> remove_two_items(vector<Transistor> PDN, Transistor A, Transi
 	return PDN;
 }
 
-string find_expression(vector<Transistor> PDN, vector<Transistor> PUN){
+string find_expression(vector<Transistor> PDN){
 	vector<Transistor> PDN_TEMP = PDN;
-	vector<Transistor> PUN_TEMP = PUN;
     string alias = "";
     string source = "";
     string drain = "";
@@ -81,7 +80,7 @@ string find_expression(vector<Transistor> PDN, vector<Transistor> PUN){
 					break;
 				}
 				else{
-					expression = find_expression(PDN_TEMP,PUN_TEMP);
+					expression = find_expression(PDN_TEMP);
 					break;
 				}
 	  		}
@@ -96,7 +95,7 @@ string find_expression(vector<Transistor> PDN, vector<Transistor> PUN){
 			alias.append(B.get_gate());
 			alias.append(")");
 			gate = alias;
-            
+
             //Find the connecting point and preserve the connection
             if ( A.get_source() == B.get_source() ){
                 source = A.get_drain();
@@ -124,7 +123,7 @@ string find_expression(vector<Transistor> PDN, vector<Transistor> PUN){
 				break;
 			}
 			else{
-				expression = find_expression(PDN_TEMP,PUN_TEMP);
+				expression = find_expression(PDN_TEMP);
 				break;
 			}
 	  	}

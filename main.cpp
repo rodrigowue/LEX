@@ -176,7 +176,10 @@ int main(int argc, char** argv)
 	So: If found a parallel or series pair, remove than and create another transistor*/
 
 	//NOTE THAT THIS IS THE CMOS ARRANJMENT ONLY, THE ACTUAL EXPRESSION is negated of that:
-	cout << "Expression: " << find_expression(PDN,PUN) << endl;
+	cout << "PDN Expression: " << find_expression(PDN) << endl;
+	cout << "PUN Expression: " << find_expression(PUN) << endl;
+	cout << "----------------------------------------" << endl;
+	cout << "Expression: " << find_expression(PUN) << ".!(" << find_expression(PDN) << ")" << endl;
 
      
 

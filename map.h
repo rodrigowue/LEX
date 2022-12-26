@@ -10,6 +10,6 @@ bool check_series(Transistor A, Transistor B);
 
 vector<Transistor> remove_two_items(vector<Transistor> PDN, Transistor A, Transistor B);
 
-string find_expression(vector<Transistor> PDN, vector<Transistor> PUN);
+string find_expression(vector<Transistor> PDN);
 
 #endif
