@@ -5,7 +5,7 @@ BIN     := bin
 SRC     := src
 INCLUDE := include
 
-LIBRARIES   := stlGraph.cpp transistor.cpp
+LIBRARIES   := map.cpp transistor.cpp
 EXECUTABLE  := a.out
 
 
