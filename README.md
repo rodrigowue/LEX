@@ -1,4 +1,4 @@
-# spice-arc-extractor
+# S²CTAE - SPICE STD-CELL TIMING ARCS EXTRACTOR
 ```
   ____  ___  ____ _____  _    _____ 
  / ___||_  )/ ___|_   _|/ \  | ____|
