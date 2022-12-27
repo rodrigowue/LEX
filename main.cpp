@@ -179,10 +179,23 @@ int main(int argc, char** argv)
 	cout << "PDN Expression: " << find_expression(PDN) << endl;
 	cout << "PUN Expression: " << find_expression(PUN) << endl;
 	cout << "----------------------------------------" << endl;
-	cout << "Expression: !(" << find_expression(PUN) << "*" << find_expression(PDN) << ")" << endl;
+	
+	string expression;
+	expression.append("!(");
+	expression.append(find_expression(PUN));
+	expression.append("*");
+	expression.append(find_expression(PDN));
+	expression.append(")");
 
-     
-
+	cout << "Expression: " << expression << endl; 
+	find_arcs(in_pins, expression);
+	replace_all(expression, "A", "1");
+	replace_all(expression, "B", "1");
+	replace_all(expression, "C", "1");
+	cout << "Expression: " << expression << endl; 
+	//if (solve_boolean_expression(expression)==1){
+	//	cout << "1" << endl;
+	//}
     return 0;
     }
 

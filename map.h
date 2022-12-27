@@ -12,4 +12,10 @@ vector<Transistor> remove_two_items(vector<Transistor> PDN, Transistor A, Transi
 
 string find_expression(vector<Transistor> PDN);
 
+int solve_boolean_expression(string expression);
+
+void replace_all(std::string& s, std::string const& toReplace, std::string const& replaceWith);
+
+vector<string> find_arcs(vector<string> in_pins, string expression);
+
 #endif

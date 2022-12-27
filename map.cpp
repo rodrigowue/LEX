@@ -1,6 +1,7 @@
 #include "map.h"
 #include "transistor.h"
 #include <vector>
+#include <math.h>
 using namespace std;
 
 
@@ -134,4 +135,75 @@ string find_expression(vector<Transistor> PDN){
     	}
 	}
 	return expression;
+}
+
+int solve_boolean_expression(string expression){
+	if (expression.size() > 1){
+		replace_all(expression, "(0+0)", "0");
+		replace_all(expression, "(0+1)", "1");
+		replace_all(expression, "(1+0)", "1");
+		replace_all(expression, "(1+1)", "1");
+
+		replace_all(expression, "(0*0)", "0");
+		replace_all(expression, "(0*1)", "0");
+		replace_all(expression, "(1*0)", "0");
+		replace_all(expression, "(1*1)", "1");
+
+		replace_all(expression, "!1", "0");
+		replace_all(expression, "!0", "1");
+		return solve_boolean_expression(expression);
+		}
+	else{
+		return atoi(expression.c_str());
+	}
+}
+
+void replace_all(
+    std::string& s,
+    std::string const& toReplace,
+    std::string const& replaceWith
+) {
+    std::string buf;
+    std::size_t pos = 0;
+    std::size_t prevPos;
+
+    // Reserves rough estimate of final size of string.
+    buf.reserve(s.size());
+
+    while (true) {
+        prevPos = pos;
+        pos = s.find(toReplace, pos);
+        if (pos == std::string::npos)
+            break;
+        buf.append(s, prevPos, pos - prevPos);
+        buf += replaceWith;
+        pos += toReplace.size();
+    }
+
+    buf.append(s, prevPos, s.size() - prevPos);
+    s.swap(buf);
+}
+
+vector<string> find_arcs(vector<string> in_pins, string expression){
+	vector<string> arcs;
+	int counter = 0;
+	int amount_of_inputs = pow(2,(in_pins.size()));
+	while (counter < amount_of_inputs){
+		string local_expression = expression;
+		for (auto it = begin(in_pins); (it != end(in_pins)); ++it){
+			int index = it - in_pins.begin();
+			int teste = (counter >> index) & 1;
+			replace_all(local_expression, *it, to_string(teste));
+			cout << teste;
+		}
+		if (solve_boolean_expression(local_expression) == 1){
+			cout << "|" << 1  << endl;
+		}
+		else{
+			cout << "|" << 0  << endl;
+		}
+		counter++;
+	}
+	return arcs;
+
 }
