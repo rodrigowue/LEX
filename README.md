@@ -46,10 +46,18 @@ PDN Expression: (C*(A*B))
 PUN Expression: (C+(A+B))
 ----------------------------------------
 Expression: !((C+(A+B))*(C*(A*B)))
+----------------------------------------
+TRUTH TABLE:
+000|1
+100|1
+010|1
+110|1
+001|1
+101|1
+011|1
+111|0
+----------------------------------------
 ```
-
-(the ISOP expression since the CMOS is negated by nature)
-
 
 
 Maybe it could become a part of an open-source characterization tool in the future.
