@@ -43,7 +43,7 @@ int main(int argc, char** argv)
     	// IF FIRST LINE TOKEN == "*.pininfo"
     	//------------------------------------------------------------------
   		if(token == "*.pininfo"){
-  			cout << "--------------------------------------\n" << "Fetching Information Pinage Information\n";
+  			cout << "--------------------------------------\n" << "Fetching Pinage Information\n";
   			while(lineStream >> token)
     		{
         		if (token.find(":I") != string::npos) {
@@ -188,11 +188,14 @@ int main(int argc, char** argv)
 	expression.append(")");
 
 	cout << "Expression: " << expression << endl; 
+	cout << "----------------------------------------" << endl;
+	cout << "TRUTH TABLE:" << endl;
 	find_arcs(in_pins, expression);
-	replace_all(expression, "A", "1");
-	replace_all(expression, "B", "1");
-	replace_all(expression, "C", "1");
-	cout << "Expression: " << expression << endl; 
+	cout << "----------------------------------------" << endl;
+	//replace_all(expression, "A", "1");
+	//replace_all(expression, "B", "1");
+	//replace_all(expression, "C", "1");
+	//cout << "Expression: " << expression << endl; 
 	//if (solve_boolean_expression(expression)==1){
 	//	cout << "1" << endl;
 	//}
