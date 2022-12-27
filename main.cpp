@@ -46,24 +46,24 @@ int main(int argc, char** argv)
   			cout << "--------------------------------------\n" << "Fetching Pinage Information\n";
   			while(lineStream >> token)
     		{
-        		if (token.find(":I") != string::npos) {
+        		if ((token.find(":I") != string::npos) | (token.find(":i") != string::npos)) {
         			token.erase(token.end()-2,token.end());
         			// cout << "INPUT:" << token << endl;
         			in_pins.push_back(token);
 				}
-				else if (token.find(":O") != string::npos)
+				else if ((token.find(":O") != string::npos) | (token.find(":o") != string::npos))
 				{
         			token.erase(token.end()-2,token.end());
         			// cout << "OUTPUT:" << token << endl;
         			out_pins.push_back(token);
 				}
-				else if (token.find(":P") != string::npos)
+				else if ((token.find(":P") != string::npos) | (token.find(":p") != string::npos))
 				{
         			token.erase(token.end()-2,token.end());
         			// cout << "POWER:" << token << endl;
         			power_pins.push_back(token);
 				}
-				else if (token.find(":G") != string::npos)
+				else if ((token.find(":G") != string::npos) | (token.find(":g") != string::npos))
 				{
         			token.erase(token.end()-2,token.end());
         			// cout << "GROUND:" << token << endl;
