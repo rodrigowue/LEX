@@ -190,7 +190,10 @@ int main(int argc, char** argv)
 	cout << "Expression: " << expression << endl; 
 	cout << "----------------------------------------" << endl;
 	cout << "TRUTH TABLE:" << endl;
+	truth_table(in_pins, expression);
+	cout << "ARCS:" << endl;
 	find_arcs(in_pins, expression);
+	
 	cout << "----------------------------------------" << endl;
 	//replace_all(expression, "A", "1");
 	//replace_all(expression, "B", "1");

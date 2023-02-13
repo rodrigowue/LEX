@@ -18,4 +18,6 @@ void replace_all(std::string& s, std::string const& toReplace, std::string const
 
 vector<string> find_arcs(vector<string> in_pins, string expression);
 
+vector<string> truth_table(vector<string> in_pins, string expression);
+
 #endif

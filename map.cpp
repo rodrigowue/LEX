@@ -1,5 +1,6 @@
 #include "map.h"
 #include "transistor.h"
+#include <unordered_set>
 #include <vector>
 #include <math.h>
 using namespace std;
@@ -185,6 +186,95 @@ void replace_all(
 }
 
 vector<string> find_arcs(vector<string> in_pins, string expression){
+	vector<string> arcs;
+	  string expr = expression;
+  unordered_set<char> literals;
+  
+  for (char c : expr) {
+    if (isalpha(c)) {
+      literals.insert(c);
+    }
+  }
+
+  int numLiterals = literals.size();
+  cout << "Number of literals: " << numLiterals << endl;
+
+
+  int maxVal = 1 << numLiterals;
+  bool values[numLiterals];
+
+  for (int i = 0; i < maxVal; i++) {
+    // Set the values of the literals
+    int t = i;
+    int j = 0;
+    for (char c : literals) {
+      values[j++] = t & 1;
+      t >>= 1;
+    }
+
+    // Evaluate the boolean expression
+    string local_expression = expr;
+    
+    for (size_t i = 0; i < local_expression.size(); ++i) {
+        int it = 0;
+        for (char c : literals) {
+            if (local_expression[i] == char(c)) {
+                local_expression.replace(i, 1, to_string(values[it]));
+            }
+            it++;
+        }
+    }
+    
+    bool result = solve_boolean_expression(local_expression);
+    //bool result = !((values[0] + values[1]) * (values[0] * values[1]));
+    
+    // Check for transition arcs
+    int k = 0;
+    for (char c : literals) {
+      int t = i ^ (1 << k);
+      int l = 0;
+      for (char d : literals) {
+        values[l++] = t & 1;
+        t >>= 1;
+      }
+      string local_expression = expr;
+      for (size_t i = 0; i < local_expression.size(); ++i) {
+        int it = 0;
+        for (char c : literals) {
+            if (local_expression[i] == char(c)) {
+                local_expression.replace(i, 1, to_string(values[it]));
+            }
+            it++;
+        }
+    }
+    
+      //cout << local_expression << endl;
+      bool newResult = solve_boolean_expression(local_expression);
+
+      if (newResult != result) {
+        cout << c << " ";
+        if (values[k]) {
+          cout << "fall";
+        } else {
+          cout << "rise";
+        }
+        cout << " leads to a ";
+        if (newResult) {
+          cout << "Fall";
+        } else {
+          cout << "Rise";
+        }
+        cout << " at the output." << endl;
+      }
+
+      k++;
+    }
+  }
+	return arcs;
+
+}
+
+vector<string> truth_table(vector<string> in_pins, string expression){
 	vector<string> arcs;
 	int counter = 0;
 	int amount_of_inputs = pow(2,(in_pins.size()));
