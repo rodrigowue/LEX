@@ -252,19 +252,28 @@ vector<string> find_arcs(vector<string> in_pins, string expression){
       bool newResult = solve_boolean_expression(local_expression);
 
       if (newResult != result) {
-        cout << c << " ";
-        if (values[k]) {
-          cout << "fall";
-        } else {
-          cout << "rise";
-        }
-        cout << " leads to a ";
+		int counter = 0;
+        for(char c1: literals){
+			if(c1 == c){
+			if (values[k]) {
+          		cout << "F";
+        	} else {
+          		cout << "R";
+        	}
+			}
+			else{
+				cout << values[counter];
+			}
+			counter++;
+			cout << " " ;
+		}
+        cout << " | ";
         if (newResult) {
           cout << "Fall";
         } else {
           cout << "Rise";
         }
-        cout << " at the output." << endl;
+        cout << endl;
       }
 
       k++;
