@@ -56,6 +56,15 @@ TRUTH TABLE:
 101|1
 011|1
 111|0
+
+ARCS:
+Number of literals: 3
+1 1 F  | Rise
+1 F 1  | Rise
+F 1 1  | Rise
+R 1 1  | Fall
+1 R 1  | Fall
+1 1 R  | Fall
 ----------------------------------------
 ```
 
