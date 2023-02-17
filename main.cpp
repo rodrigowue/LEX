@@ -23,7 +23,7 @@ int main(int argc, char** argv)
 	vector<string> pins;
 	vector<string> in_pins;
 	vector<string> out_pins;
-	vector<string> common_nodes;
+	vector<string> common_nets;
 	vector<Transistor> PDN;
 	vector<Transistor> PUN;
 
@@ -161,19 +161,19 @@ int main(int argc, char** argv)
 	  for (auto n_transistor = begin(PDN); n_transistor != end(PDN); ++n_transistor){
       	if (p_transistor->get_source() == n_transistor->get_source()){
 			//cout << p_transistor->get_source() << "=" << n_transistor->get_source() << endl;
-			common_nodes.push_back(p_transistor->get_source());
+			common_nets.push_back(p_transistor->get_source());
 		}
 		else if(p_transistor->get_source() == n_transistor->get_drain()){
 			//cout << p_transistor->get_source()  << "=" << n_transistor->get_drain() << endl;
-			common_nodes.push_back(p_transistor->get_source());
+			common_nets.push_back(p_transistor->get_source());
 		}
 		else if(p_transistor->get_drain() == n_transistor->get_source()){
 			//cout << p_transistor->get_drain() << "=" << n_transistor->get_source() << endl;
-			common_nodes.push_back(p_transistor->get_drain());
+			common_nets.push_back(p_transistor->get_drain());
 		}
 		else if(p_transistor->get_drain() == n_transistor->get_drain()){
 			//cout << p_transistor->get_drain() << "=" << n_transistor->get_drain() << endl;
-			common_nodes.push_back(p_transistor->get_drain());
+			common_nets.push_back(p_transistor->get_drain());
     	}
 		else{
 
@@ -184,7 +184,7 @@ int main(int argc, char** argv)
 	
 	//Remove Common Nodes from the pin list
 	in_pins = pins;
-	distribute_pins(common_nodes,in_pins,out_pins);
+	distribute_pins(common_nets,in_pins,out_pins);
 	
 	for (auto it = begin(in_pins); it != end(in_pins); ++it){
 		cout << "input:" << *it << endl;
@@ -204,6 +204,7 @@ int main(int argc, char** argv)
 	cout << "PUN Expression: " << find_expression(PUN) << endl;
 	cout << "----------------------------------------" << endl;
 	
+	//expression = !(PUN)*PDN
 	string expression;
 	expression.append("!(");
 	expression.append(find_expression(PUN));
