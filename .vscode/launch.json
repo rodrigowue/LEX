@@ -7,7 +7,7 @@
       "request": "launch",
       "program": "${fileDirname}/${fileBasenameNoExtension}",
       "args": [
-        "nand3.sp"
+        "spice_files/nand3.sp"
       ],
       "stopAtEntry": false,
       "cwd": "${fileDirname}",

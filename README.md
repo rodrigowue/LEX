@@ -27,7 +27,7 @@ g++ main.cpp map.cpp transistor.cpp
 ./a.out <spice file>
 ```
 
-By running the nand3.sp example the tool outputs:
+By running the spice_files/and3.sp example the tool outputs:
 
 ```
 ======================================

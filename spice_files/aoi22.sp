@@ -1,5 +1,4 @@
 .SUBCKT aoi22 vdd gnd a b c d out 
-*.pininfo a:I b:I c:I d:I out:O gnd:G vdd:P
 Mpa out a x vdd PMOS W=4u L=0.24u 
 Mpb out b x vdd PMOS W=4u L=0.24u 
 Mpc x c vdd vdd PMOS W=4u L=0.24u 
