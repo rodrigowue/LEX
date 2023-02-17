@@ -12,14 +12,15 @@
 #include "map.h"
 using namespace std;
 
-
-
 int main(int argc, char** argv)
 	{
+	
 	string line;
+	string subcircuit;
 	char delim[]=" ";
 	vector<string> power_pins;
 	vector<string> ground_pins;
+	vector<string> pins;
 	vector<string> in_pins;
 	vector<string> out_pins;
 	vector<string> common_nodes;
@@ -34,7 +35,7 @@ int main(int argc, char** argv)
 	if (0==(myfile.is_open())){
 		cout << "Cannot open file:" << argv[1] << endl;
 	}
-
+	print_logo();
 	while(getline(myfile,line)){
     	stringstream lineStream(line);
     	string token;
@@ -42,38 +43,32 @@ int main(int argc, char** argv)
     	//------------------------------------------------------------------
     	// IF FIRST LINE TOKEN == "*.pininfo"
     	//------------------------------------------------------------------
-  		if(token == "*.pininfo"){
-  			cout << "--------------------------------------\n" << "Fetching Pinage Information\n";
-  			while(lineStream >> token)
-    		{
-        		if ((token.find(":I") != string::npos) | (token.find(":i") != string::npos)) {
-        			token.erase(token.end()-2,token.end());
-        			// cout << "INPUT:" << token << endl;
-        			in_pins.push_back(token);
-				}
-				else if ((token.find(":O") != string::npos) | (token.find(":o") != string::npos))
-				{
-        			token.erase(token.end()-2,token.end());
-        			// cout << "OUTPUT:" << token << endl;
-        			out_pins.push_back(token);
-				}
-				else if ((token.find(":P") != string::npos) | (token.find(":p") != string::npos))
-				{
-        			token.erase(token.end()-2,token.end());
-        			// cout << "POWER:" << token << endl;
-        			power_pins.push_back(token);
-				}
-				else if ((token.find(":G") != string::npos) | (token.find(":g") != string::npos))
-				{
-        			token.erase(token.end()-2,token.end());
-        			// cout << "GROUND:" << token << endl;
-        			ground_pins.push_back(token);
-				}
-    		}
-  		}
   		//------------------------------------------------------------------
   		//IF FIRST LINE TOKEN STARTS WITH "M" (Transistor)
   		//------------------------------------------------------------------
+		
+		if((token == ".SUBCKT") | (token == ".subckt")){
+  			//cout << "--------------------------------------\n" << "Fetching Pinage Information\n";
+			lineStream >> token;
+			subcircuit = token;
+			cout << "Subcircuit:" << token << endl;
+  			while(lineStream >> token)
+    		{
+        		if ((token == "VDD")|(token == "vdd")) {;
+        			power_pins.push_back(token);
+					//cout << "vdd:" << token << endl;
+				}
+				else if((token == "GND")|(token == "gnd")|(token == "VSS")|(token == "vss")){
+					ground_pins.push_back(token);
+					//cout << "gnd:" << token << endl;
+				}
+				else
+				{
+        			pins.push_back(token);
+					//cout << "pin:" << token << endl;
+				}
+    		}
+  		}
   		else if(token[0]=='M'){
         string alias;
         string source;
@@ -139,37 +134,66 @@ int main(int argc, char** argv)
 				PDN.push_back(n_transistor);
 				//cout << "NMOS ADDED TO PDN LIST" << endl;
 			}
-  		}
-  		//------------------------------------------------------------------
-  		else if(token == ".SUBCKT"){
-		//Just to ignore this line and not retrieve tokens
-  		}
-  		//------------------------------------------------------------------
+		}
   		else{
 
     	}
-    	//std::cout << "\n";
+    
 	   }
-
-	   //------------------------------------------------------------------
-     int V = 5;
-     vector<pair<int, int> > adj[V];
-     int x=0;
-
-     cout << "----------------------------------------" << endl;
-     cout << "PMOS:" << endl;
-     for (auto it = begin(PUN); it != end(PUN); ++it){
+	
+    //int x=0;
+	/*
+    cout << "----------------------------------------" << endl;
+    cout << "PMOS:" << endl;
+    for (auto it = begin(PUN); it != end(PUN); ++it){
       cout << x << ":" << it->get_alias() << " " << it->get_source() << " " << it->get_drain() << endl;
       x++;
-     }
+    }
 
-     cout << "NMOS:" << endl;
-     for (auto it = begin(PDN); it != end(PDN); ++it){
+    cout << "NMOS:" << endl;
+    for (auto it = begin(PDN); it != end(PDN); ++it){
       cout << x << ":" << it->get_alias() << " " << it->get_source() << " " << it->get_drain() << endl;
       x++;
-     }
+    }
+	*/
+	//Get All PDN and PUN Common Nodes
+	for (auto p_transistor = begin(PUN); p_transistor != end(PUN); ++p_transistor){
+	  for (auto n_transistor = begin(PDN); n_transistor != end(PDN); ++n_transistor){
+      	if (p_transistor->get_source() == n_transistor->get_source()){
+			//cout << p_transistor->get_source() << "=" << n_transistor->get_source() << endl;
+			common_nodes.push_back(p_transistor->get_source());
+		}
+		else if(p_transistor->get_source() == n_transistor->get_drain()){
+			//cout << p_transistor->get_source()  << "=" << n_transistor->get_drain() << endl;
+			common_nodes.push_back(p_transistor->get_source());
+		}
+		else if(p_transistor->get_drain() == n_transistor->get_source()){
+			//cout << p_transistor->get_drain() << "=" << n_transistor->get_source() << endl;
+			common_nodes.push_back(p_transistor->get_drain());
+		}
+		else if(p_transistor->get_drain() == n_transistor->get_drain()){
+			//cout << p_transistor->get_drain() << "=" << n_transistor->get_drain() << endl;
+			common_nodes.push_back(p_transistor->get_drain());
+    	}
+		else{
 
-     cout << "----------------------------------------" << endl;
+		}
+    	}
+	}
+	
+	
+	//Remove Common Nodes from the pin list
+	in_pins = pins;
+	distribute_pins(common_nodes,in_pins,out_pins);
+	
+	for (auto it = begin(in_pins); it != end(in_pins); ++it){
+		cout << "input:" << *it << endl;
+	}
+	for (auto it = begin(out_pins); it != end(out_pins); ++it){
+		cout << "output:" << *it << endl;
+	}
+	
+    cout << "----------------------------------------" << endl;
 	/* In the future we could iterate the PDN until there is only one transistor left. 
 	At each iteration it will replace 2 transistors from the vector for a 
 	macro transistor (by macro it is a normal transistor but the alias will be the expression like "(MN1.MN2)")
@@ -203,5 +227,5 @@ int main(int argc, char** argv)
 	//	cout << "1" << endl;
 	//}
     return 0;
-    }
+	}
 

@@ -4,6 +4,12 @@
 #include <vector>
 using namespace std;
 
+void print_logo();
+
+vector<string> remove_pin(vector<string> pin_list, string pin);
+
+void distribute_pins(vector<string>& common_nodes, vector<string>& in_pins, vector<string>& out_pins);
+
 bool check_parallel(Transistor A, Transistor B);
 
 bool check_series(Transistor A, Transistor B);

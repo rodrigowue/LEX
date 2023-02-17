@@ -5,7 +5,47 @@
 #include <math.h>
 using namespace std;
 
+void print_logo(){
+cout << "======================================" << endl;
+cout << " SPICE STD-CELL TIMING ARCS EXTRACTOR" << endl;
+cout << "       [UNDER DEVELOPMENT]" << endl;
+cout << "======================================" << endl;
+};
 
+vector<string> remove_pin(vector<string> pin_list, string pin){
+	for (auto it_rm = begin(pin_list); it_rm != end(pin_list); ){
+		if (*it_rm == pin){
+			//cout << "deleting " << *it_rm << " from the list" << endl;
+    		pin_list.erase(it_rm);
+			}
+		else{
+			it_rm++;
+			}
+		}
+
+	return pin_list;
+}
+
+void distribute_pins(vector<string>& common_nodes, vector<string>& in_pins, vector<string>& out_pins){
+	vector<string> in_pins_tmp;
+	for (auto it = begin(common_nodes); it != end(common_nodes); ++it){
+		for (auto it2 = begin(in_pins); it2 != end(in_pins); ++it2){
+			if(*it == *it2){
+				in_pins = remove_pin(in_pins, *it2);
+				out_pins.push_back(*it2);
+				if (in_pins.size() == 1){
+					break;
+				}
+				else{
+					distribute_pins(common_nodes, in_pins, out_pins);
+					break;
+				}
+			}
+			
+		}
+	}
+	return;
+};
 
 bool check_parallel(Transistor A, Transistor B){
 	if ((( A.get_source() == B.get_source() ) && ( A.get_drain() == B.get_drain())) | (( A.get_drain() == B.get_source() ) && ( A.get_source() == B.get_drain()))){

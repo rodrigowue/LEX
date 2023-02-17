@@ -23,24 +23,22 @@ make
 or
 
 ```
-g++ main.cpp stlGraph.cpp transistor.cpp
+g++ main.cpp map.cpp transistor.cpp
 ./a.out <spice file>
 ```
 
 By running the nand3.sp example the tool outputs:
 
 ```
---------------------------------------
-Fetching Pinage Information
-----------------------------------------
-PMOS:
-0:MP0 VDD OUT
-1:MP1 VDD OUT
-2:MP2 VDD OUT
-NMOS:
-3:MN0 OUT rand0
-4:MN1 rand0 rand1
-5:MN2 rand1 VSS
+======================================
+ SPICE STD-CELL TIMING ARCS EXTRACTOR
+       [UNDER DEVELOPMENT]
+======================================
+Subcircuit:NAND3D0BWP
+input:A
+input:B
+input:C
+output:OUT
 ----------------------------------------
 PDN Expression: (C*(A*B))
 PUN Expression: (C+(A+B))
@@ -56,7 +54,6 @@ TRUTH TABLE:
 101|1
 011|1
 111|0
-
 ARCS:
 Number of literals: 3
 1 1 F  | Rise
