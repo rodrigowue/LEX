@@ -16,7 +16,8 @@
     "valarray": "cpp",
     "ostream": "cpp",
     "*.tcc": "cpp",
-    "utility": "cpp"
+    "utility": "cpp",
+    "fstream": "cpp"
   },
   "C_Cpp_Runner.cCompilerPath": "gcc",
   "C_Cpp_Runner.cppCompilerPath": "g++",

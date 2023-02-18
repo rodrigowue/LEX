@@ -24,8 +24,10 @@ int main(int argc, char** argv)
 	vector<string> in_pins;
 	vector<string> out_pins;
 	vector<string> common_nets;
+	vector<string> arcs;
 	vector<Transistor> PDN;
 	vector<Transistor> PUN;
+	
 
 	if (argc < 1 ){
 		cout << "call: ./main [*].sp" << endl;
@@ -194,12 +196,6 @@ int main(int argc, char** argv)
 	}
 	
     cout << "----------------------------------------" << endl;
-	/* In the future we could iterate the PDN until there is only one transistor left. 
-	At each iteration it will replace 2 transistors from the vector for a 
-	macro transistor (by macro it is a normal transistor but the alias will be the expression like "(MN1.MN2)")
-	So: If found a parallel or series pair, remove than and create another transistor*/
-
-	//NOTE THAT THIS IS THE CMOS ARRANJMENT ONLY, THE ACTUAL EXPRESSION is negated of that:
 	cout << "PDN Expression: " << find_expression(PDN) << endl;
 	cout << "PUN Expression: " << find_expression(PUN) << endl;
 	cout << "----------------------------------------" << endl;
@@ -217,16 +213,23 @@ int main(int argc, char** argv)
 	cout << "TRUTH TABLE:" << endl;
 	truth_table(in_pins, expression);
 	cout << "ARCS:" << endl;
-	find_arcs(in_pins, expression);
-	
+	arcs = find_arcs(in_pins, expression);
 	cout << "----------------------------------------" << endl;
-	//replace_all(expression, "A", "1");
-	//replace_all(expression, "B", "1");
-	//replace_all(expression, "C", "1");
-	//cout << "Expression: " << expression << endl; 
-	//if (solve_boolean_expression(expression)==1){
-	//	cout << "1" << endl;
-	//}
+	
+	ofstream out_file(subcircuit + ".arcs");
+	out_file << in_pins.size() << " ";
+	for (auto it = begin(pins); it != end(pins); ++it){
+		out_file << *it << " " ;
+	}
+	
+	out_file << endl;
+	
+	for (auto it = begin(arcs); it != end(arcs); ++it){
+		out_file << *it << endl;
+	}
+
+	out_file.close();
+
     return 0;
 	}
 

@@ -227,8 +227,8 @@ void replace_all(
 
 vector<string> find_arcs(vector<string> in_pins, string expression){
 	vector<string> arcs;
-	  string expr = expression;
-  unordered_set<char> literals;
+	string expr = expression;
+  	unordered_set<char> literals;
   
   for (char c : expr) {
     if (isalpha(c)) {
@@ -293,16 +293,25 @@ vector<string> find_arcs(vector<string> in_pins, string expression){
 
       if (newResult != result) {
 		int counter = 0;
+		string arc = "";
         for(char c1: literals){
 			if(c1 == c){
 			if (values[k]) {
           		cout << "F";
+				arc += "F ";
         	} else {
           		cout << "R";
+				arc += "R ";
         	}
 			}
 			else{
 				cout << values[counter];
+				if (values[counter] == 1){
+					arc += "1 ";
+				}
+				else{
+					arc += "0 ";
+				}
 			}
 			counter++;
 			cout << " " ;
@@ -310,9 +319,12 @@ vector<string> find_arcs(vector<string> in_pins, string expression){
         cout << " | ";
         if (newResult) {
           cout << "Fall";
+		  arc += "F ";
         } else {
           cout << "Rise";
+		  arc += "R ";
         }
+		arcs.push_back(arc);
         cout << endl;
       }
 
