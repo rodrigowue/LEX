@@ -1,11 +1,11 @@
-# S²CTAE - SPICE STD-CELL TIMING ARCS EXTRACTOR
+# S²CAE - SPICE STD-CELL ARCS EXTRACTOR
 ```
-  ____  ___  ____ _____  _    _____ 
- / ___||_  )/ ___|_   _|/ \  | ____|
- \___ \ / /| |     | | / _ \ |  _|  
-  ___) /___| |___  | |/ ___ \| |___ 
- |____/     \____| |_/_/   \_\_____|
- SPICE STD-CELL TIMING ARCS EXTRACTOR
+  ____  ___  ____     _    _____ 
+ / ___||_  )/ ___|   / \  | ____|
+ \___ \ / /| |      / _ \ |  _|  
+  ___) /___| |___  / ___ \| |___ 
+ |____/     \____|/_/   \_\_____|
+ SPICE STD-CELL ARCS EXTRACTOR
        [UNDER DEVELOPMENT]
 
 ```
@@ -31,7 +31,7 @@ By running the spice_files/nand3.sp example the tool outputs:
 
 ```
 ======================================
- SPICE STD-CELL TIMING ARCS EXTRACTOR
+ SPICE STD-CELL ARCS EXTRACTOR
        [UNDER DEVELOPMENT]
 ======================================
 Subcircuit:NAND3D0BWP
@@ -64,6 +64,9 @@ R 1 1  | Fall
 1 1 R  | Fall
 ----------------------------------------
 ```
+A <*>.arcs file is generated as an output.
 
 
-Maybe it could become a part of an open-source characterization tool in the future.
+This tool is currently feeding a characterization tool that is being developed under the following repo:
+
+https://github.com/rodrigowue/DPAC
