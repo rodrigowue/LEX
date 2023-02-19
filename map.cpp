@@ -298,19 +298,19 @@ vector<string> find_arcs(vector<string> in_pins, string expression){
 			if(c1 == c){
 			if (values[k]) {
           		cout << "F";
-				arc += "F ";
+				arc += "F";
         	} else {
           		cout << "R";
-				arc += "R ";
+				arc += "R";
         	}
 			}
 			else{
 				cout << values[counter];
 				if (values[counter] == 1){
-					arc += "1 ";
+					arc += "1";
 				}
 				else{
-					arc += "0 ";
+					arc += "0";
 				}
 			}
 			counter++;
@@ -319,10 +319,10 @@ vector<string> find_arcs(vector<string> in_pins, string expression){
         cout << " | ";
         if (newResult) {
           cout << "Fall";
-		  arc += "F ";
+		  arc += "F";
         } else {
           cout << "Rise";
-		  arc += "R ";
+		  arc += "R";
         }
 		arcs.push_back(arc);
         cout << endl;
