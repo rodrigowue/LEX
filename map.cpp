@@ -26,18 +26,18 @@ vector<string> remove_pin(vector<string> pin_list, string pin){
 	return pin_list;
 }
 
-void distribute_pins(vector<string>& common_nodes, vector<string>& in_pins, vector<string>& out_pins){
+void distribute_pins(vector<string>& common_nets, vector<string>& in_pins, vector<string>& out_pins){
 	vector<string> in_pins_tmp;
-	for (auto it = begin(common_nodes); it != end(common_nodes); ++it){
-		for (auto it2 = begin(in_pins); it2 != end(in_pins); ++it2){
-			if(*it == *it2){
-				in_pins = remove_pin(in_pins, *it2);
-				out_pins.push_back(*it2);
+	for (string common_net: common_nets){
+		for (string pin : in_pins){
+			if(common_net == pin){
+				in_pins = remove_pin(in_pins, pin);
+				out_pins.push_back(pin);
 				if (in_pins.size() == 1){
 					break;
 				}
 				else{
-					distribute_pins(common_nodes, in_pins, out_pins);
+					distribute_pins(common_nets, in_pins, out_pins);
 					break;
 				}
 			}
