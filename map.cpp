@@ -56,8 +56,29 @@ bool check_parallel(Transistor A, Transistor B){
 	}
 }
 
-bool check_series(Transistor A, Transistor B){
-	if ((( A.get_source() == B.get_source() ) | ( A.get_drain() == B.get_drain())) | (( A.get_source() == B.get_drain() ) | ( A.get_drain() == B.get_source()))){
+bool check_pg_pin(string pin, vector<string>& power_pins, vector<string>& ground_pins){
+		int wrong = 0;
+		for(string vdd_pin: power_pins){
+			if(pin == vdd_pin){
+				wrong++;
+			}
+		}
+		for(string gnd_pin: ground_pins){
+			if(pin == gnd_pin){
+				wrong++;
+			}
+		}
+		if (wrong > 0){
+			return false;
+		}
+		else{
+			return true;
+		}
+		
+}
+
+bool check_series(Transistor A, Transistor B, vector<string>& power_pins, vector<string>& ground_pins){
+	if (((( A.get_source() == B.get_source() ) & (check_pg_pin(A.get_source(),power_pins,ground_pins)))|(( A.get_drain() == B.get_drain()) & (check_pg_pin(A.get_drain(),power_pins,ground_pins))))|(((A.get_source() == B.get_drain()) & (check_pg_pin(A.get_source(),power_pins,ground_pins)))|((A.get_drain() == B.get_source()) & (check_pg_pin(A.get_drain(),power_pins,ground_pins))))){
 		return true;
 	}
 	else{
@@ -81,7 +102,7 @@ vector<Transistor> remove_two_items(vector<Transistor> PDN, Transistor A, Transi
 	return PDN;
 }
 
-string find_expression_v2(string common_net, vector<Transistor> PDN){
+string find_expression_v2(int circuit_columns, string common_net, vector<Transistor> PDN, vector<string>& power_pins, vector<string>& ground_pins){
 	vector<Transistor> PDN_TEMP = PDN;
     string alias = "";
     string source = "";
@@ -93,14 +114,14 @@ string find_expression_v2(string common_net, vector<Transistor> PDN){
     int fingers=0;
     double gate_lenght = 0.0;
     int stack=0;
-	string expression;
+	string expression = "";
 	int size = PDN_TEMP.size();
 	auto a_pointer = PDN_TEMP.begin();
-	if (PDN_TEMP.size() > 1){
+	if (PDN_TEMP.size() > circuit_columns){
 		Transistor A = *a_pointer;
 		for (auto it = begin(PDN_TEMP)+1; (it != end(PDN_TEMP)); ++it){
 	  		Transistor B = *it;
-	  		if (check_parallel(A,B) == true & ((A.get_drain()==common_net)|(A.get_source()==common_net)|(B.get_drain()==common_net)|(B.get_source()==common_net))){
+	  		if (check_parallel(A,B) == true & (((A.get_drain()==common_net)|(A.get_source()==common_net)) & ((B.get_drain()==common_net)|(B.get_source()==common_net)))){
 				expression.append(A.get_gate());
 				expression.append("+");
 				expression.append(B.get_gate());
@@ -117,16 +138,16 @@ string find_expression_v2(string common_net, vector<Transistor> PDN){
 				PDN_TEMP.shrink_to_fit();
 				PDN_TEMP.push_back(group_transistor); // insert the merged item
 				PDN_TEMP = remove_two_items(PDN_TEMP, A, B); //remove the two items that were merged
-				if (PDN_TEMP.size() == 1){
-					return (PDN_TEMP.front()).get_alias();
+				if (PDN_TEMP.size() == circuit_columns){
+					return (PDN_TEMP.front()).get_gate();
 					break;
 				}
 				else{
-					expression = find_expression_v2(common_net, PDN_TEMP);
+					expression = find_expression_v2(circuit_columns, common_net, PDN_TEMP, power_pins, ground_pins);
 					break;
 				}
 	  		}
-	  	else if (check_series(A,B) == true & ((A.get_drain()==common_net)|(A.get_source()==common_net)|(B.get_drain()==common_net)|(B.get_source()==common_net))){
+	  	else if (check_series(A,B,power_pins,ground_pins) == true & (((A.get_drain()==common_net)|(A.get_source()==common_net))^((B.get_drain()==common_net)|(B.get_source()==common_net)))){
 			expression.append(A.get_gate());
 			expression.append("*");
 			expression.append(B.get_gate());
@@ -139,15 +160,15 @@ string find_expression_v2(string common_net, vector<Transistor> PDN){
 			gate = alias;
 
             //Find the connecting point and preserve the connection
-            if ( A.get_source() == B.get_source() ){
+            if ( A.get_source() == B.get_source() & check_pg_pin(A.get_source(), power_pins, ground_pins)){
                 source = A.get_drain();
 			    drain  = B.get_drain();
             }
-            else if(A.get_drain() == B.get_drain()){
+            else if(A.get_drain() == B.get_drain() & check_pg_pin(A.get_drain(), power_pins, ground_pins)){
                 source = A.get_source();
 			    drain  = B.get_source();
             }
-            else if(A.get_source() == B.get_drain()){
+            else if(A.get_source() == B.get_drain() & check_pg_pin(A.get_source(), power_pins, ground_pins)){
                 source = A.get_drain();
 			    drain  = B.get_source();
             }
@@ -160,25 +181,39 @@ string find_expression_v2(string common_net, vector<Transistor> PDN){
 			PDN_TEMP.shrink_to_fit();
 			PDN_TEMP.push_back(group_transistor);
 			PDN_TEMP = remove_two_items(PDN_TEMP, A, B); //remove the two items that were merged
-			if (PDN_TEMP.size() == 1){
-				return (PDN_TEMP.front()).get_alias();
+			
+			if (PDN_TEMP.size() == circuit_columns){
+				return (PDN_TEMP.front()).get_gate();
 				break;
 			}
 			else{
-				expression = find_expression_v2(common_net, PDN_TEMP);
+				expression = find_expression_v2(circuit_columns, common_net, PDN_TEMP, power_pins, ground_pins);
 				break;
 			}
 	  	}
 	  	else{
-			a_pointer++;
+			if(a_pointer == PDN_TEMP.end()){
+				break;
+			}
+			else{
+				a_pointer++;
+			}
 	  	}
     	}
+	}
+	if (expression==""){
+		for(Transistor transistor: PDN_TEMP){
+			if((transistor.get_drain()==common_net)|(transistor.get_source()==common_net)){
+				return transistor.get_gate();
+			}
+		}
 	}
 	return expression;
 }
 
 string find_expression(vector<Transistor> PDN){
 	vector<Transistor> PDN_TEMP = PDN;
+	vector<string> power_pins, ground_pins;
     string alias = "";
     string source = "";
     string drain = "";
@@ -222,7 +257,7 @@ string find_expression(vector<Transistor> PDN){
 					break;
 				}
 	  		}
-	  	else if (check_series(A,B) == true){
+	  	else if (check_series(A,B,power_pins, ground_pins) == true){
 			expression.append(A.get_gate());
 			expression.append("*");
 			expression.append(B.get_gate());
@@ -273,6 +308,35 @@ string find_expression(vector<Transistor> PDN){
 	}
 	return expression;
 }
+
+string flatten_expression(vector<string> common_nets, vector<string> expressions){
+	string expression = expressions.front();
+	if (expressions.size()>1){
+		for (int i = 0 ; i < common_nets.size(); i++){
+			for (auto it2 = begin(expressions)+1; (it2 != end(expressions)); ++it2){
+			if(it2->find(common_nets.at(i)) != string::npos){
+				cout << "it2:" << *it2 << endl;
+				cout << "exp:" << expressions.at(i) << endl;
+				cout << "commo:" << common_nets.at(i) << endl;
+				string what_it_is =  common_nets.at(i);
+				string what_it_will_be = expressions.at(i);
+				replace_all(*it2, what_it_is, what_it_will_be);
+				cout << "Result:" << *it2 << endl;
+
+				for (auto it = begin(expressions)+1; (it != end(expressions)); ++it){
+					if(*it == expressions.at(i)){
+						expressions.erase(it);	
+					};
+				}
+				expression = flatten_expression(common_nets, expressions);
+			}
+			}
+		}	
+	}
+	return expression;
+}
+
+
 
 int solve_boolean_expression(string expression){
 	if (expression.size() > 1){

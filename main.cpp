@@ -7,6 +7,7 @@
 #include <vector>
 #include <iterator>
 #include <algorithm>
+#include <unordered_set>
 #include <bits/stdc++.h>
 #include "transistor.h"
 #include "map.h"
@@ -184,6 +185,9 @@ int main(int argc, char** argv)
 		}
     	}
 	}
+	//Remove Duplicates
+	sort(common_nets.begin(), common_nets.end());
+    common_nets.erase(std::unique(common_nets.begin(), common_nets.end()), common_nets.end());
 	
 	
 	//Remove Common Nodes from the pin list
@@ -197,25 +201,46 @@ int main(int argc, char** argv)
 		cout << "output:" << *it << endl;
 	}
 
+	int circuit_columns = common_nets.size();
+	cout << circuit_columns << endl;
+	vector<string> expressions;
 	for(string common_net: common_nets){
-		cout << common_net << "=" << find_expression_v2(common_net,PUN) << endl;
+		//find PUN expression for each common_net
+		string pun_expression = find_expression_v2(circuit_columns, common_net, PUN, power_pins, ground_pins);
+		cout << common_net << "=" << pun_expression << endl;
+		//find PDN expression for each common_net
+		string pdn_expression = find_expression_v2(circuit_columns, common_net, PDN, power_pins, ground_pins);
+		cout << common_net << "=" << pdn_expression << endl;
+		//Merge eexpressions into one
+		expressions.push_back("!("+pun_expression+"*"+pdn_expression+")");
 	}
-	
-    cout << "----------------------------------------" << endl;
+
+	string expression;
+
+	if (expressions.size()==1){
+		expression = expressions.front();
+	}
+	else{
+		expression = flatten_expression(common_nets,expressions);
+	}
+    
+	/*cout << "----------------------------------------" << endl;
 	cout << "PDN Expression: " << find_expression(PDN) << endl;
 	cout << "PUN Expression: " << find_expression(PUN) << endl;
 	cout << "----------------------------------------" << endl;
 	
 	
 	//expression = !(PUN)*PDN
-	string expression;
+	
 	expression.append("!(");
 	expression.append(find_expression(PUN));
 	expression.append("*");
 	expression.append(find_expression(PDN));
 	expression.append(")");
+	*/
 
 	cout << "Expression: " << expression << endl; 
+	
 	cout << "----------------------------------------" << endl;
 	cout << "TRUTH TABLE:" << endl;
 	truth_table(in_pins, expression);
