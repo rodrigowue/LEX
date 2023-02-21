@@ -196,11 +196,16 @@ int main(int argc, char** argv)
 	for (auto it = begin(out_pins); it != end(out_pins); ++it){
 		cout << "output:" << *it << endl;
 	}
+
+	for(string common_net: common_nets){
+		cout << common_net << "=" << find_expression_v2(common_net,PUN) << endl;
+	}
 	
     cout << "----------------------------------------" << endl;
 	cout << "PDN Expression: " << find_expression(PDN) << endl;
 	cout << "PUN Expression: " << find_expression(PUN) << endl;
 	cout << "----------------------------------------" << endl;
+	
 	
 	//expression = !(PUN)*PDN
 	string expression;

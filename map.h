@@ -16,6 +16,8 @@ bool check_series(Transistor A, Transistor B);
 
 vector<Transistor> remove_two_items(vector<Transistor> PDN, Transistor A, Transistor B);
 
+string find_expression_v2(string common_net, vector<Transistor> PDN);
+
 string find_expression(vector<Transistor> PDN);
 
 int solve_boolean_expression(string expression);

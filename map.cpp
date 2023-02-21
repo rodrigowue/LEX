@@ -81,6 +81,102 @@ vector<Transistor> remove_two_items(vector<Transistor> PDN, Transistor A, Transi
 	return PDN;
 }
 
+string find_expression_v2(string common_net, vector<Transistor> PDN){
+	vector<Transistor> PDN_TEMP = PDN;
+    string alias = "";
+    string source = "";
+    string drain = "";
+    string gate = "";
+    string bulk = "";
+    string type = "";
+	double diff_width = 0.0;
+    int fingers=0;
+    double gate_lenght = 0.0;
+    int stack=0;
+	string expression;
+	int size = PDN_TEMP.size();
+	auto a_pointer = PDN_TEMP.begin();
+	if (PDN_TEMP.size() > 1){
+		Transistor A = *a_pointer;
+		for (auto it = begin(PDN_TEMP)+1; (it != end(PDN_TEMP)); ++it){
+	  		Transistor B = *it;
+	  		if (check_parallel(A,B) == true & ((A.get_drain()==common_net)|(A.get_source()==common_net)|(B.get_drain()==common_net)|(B.get_source()==common_net))){
+				expression.append(A.get_gate());
+				expression.append("+");
+				expression.append(B.get_gate());
+				alias = "";
+				alias.append("(");
+				alias.append(A.get_gate());
+				alias.append("+");
+				alias.append(B.get_gate());
+				alias.append(")");
+				gate = alias;
+				source = A.get_source();
+				drain  = A.get_drain();
+				Transistor group_transistor(alias, source, drain, gate, bulk, type, diff_width, fingers, gate_lenght, stack);
+				PDN_TEMP.shrink_to_fit();
+				PDN_TEMP.push_back(group_transistor); // insert the merged item
+				PDN_TEMP = remove_two_items(PDN_TEMP, A, B); //remove the two items that were merged
+				if (PDN_TEMP.size() == 1){
+					return (PDN_TEMP.front()).get_alias();
+					break;
+				}
+				else{
+					expression = find_expression_v2(common_net, PDN_TEMP);
+					break;
+				}
+	  		}
+	  	else if (check_series(A,B) == true & ((A.get_drain()==common_net)|(A.get_source()==common_net)|(B.get_drain()==common_net)|(B.get_source()==common_net))){
+			expression.append(A.get_gate());
+			expression.append("*");
+			expression.append(B.get_gate());
+			alias = "";
+			alias.append("(");
+			alias.append(A.get_gate());
+			alias.append("*");
+			alias.append(B.get_gate());
+			alias.append(")");
+			gate = alias;
+
+            //Find the connecting point and preserve the connection
+            if ( A.get_source() == B.get_source() ){
+                source = A.get_drain();
+			    drain  = B.get_drain();
+            }
+            else if(A.get_drain() == B.get_drain()){
+                source = A.get_source();
+			    drain  = B.get_source();
+            }
+            else if(A.get_source() == B.get_drain()){
+                source = A.get_drain();
+			    drain  = B.get_source();
+            }
+            else{
+                source = A.get_source();
+			    drain  = B.get_drain();
+            }
+            
+			Transistor group_transistor(alias, source, drain, gate, bulk, type, diff_width, fingers, gate_lenght, stack);
+			PDN_TEMP.shrink_to_fit();
+			PDN_TEMP.push_back(group_transistor);
+			PDN_TEMP = remove_two_items(PDN_TEMP, A, B); //remove the two items that were merged
+			if (PDN_TEMP.size() == 1){
+				return (PDN_TEMP.front()).get_alias();
+				break;
+			}
+			else{
+				expression = find_expression_v2(common_net, PDN_TEMP);
+				break;
+			}
+	  	}
+	  	else{
+			a_pointer++;
+	  	}
+    	}
+	}
+	return expression;
+}
+
 string find_expression(vector<Transistor> PDN){
 	vector<Transistor> PDN_TEMP = PDN;
     string alias = "";
