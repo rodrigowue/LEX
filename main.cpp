@@ -38,6 +38,7 @@ int main(int argc, char** argv)
 		cout << "Cannot open file:" << argv[1] << endl;
 	}
 	print_logo();
+
 	while(getline(myfile,line)){
     	stringstream lineStream(line);
     	string token;
@@ -56,11 +57,11 @@ int main(int argc, char** argv)
 			cout << "Subcircuit:" << token << endl;
   			while(lineStream >> token)
     		{
-        		if ((token == "VDD")|(token == "vdd")) {;
+        		if ((token == "VDD")|(token == "vdd")|(token == "VPWR")|(token == "VPB")) {;
         			power_pins.push_back(token);
 					//cout << "vdd:" << token << endl;
 				}
-				else if((token == "GND")|(token == "gnd")|(token == "VSS")|(token == "vss")){
+				else if((token == "GND")|(token == "gnd")|(token == "VSS")|(token == "vss")|(token == "VGND")|(token == "VNB")){
 					ground_pins.push_back(token);
 					//cout << "gnd:" << token << endl;
 				}
@@ -71,7 +72,7 @@ int main(int argc, char** argv)
 				}
     		}
   		}
-  		else if(token[0]=='M'){
+  		else if((token[0]=='M')|(token[0]=='m')|(token[0]=='X')|(token[0]=='x')){
         string alias;
         string source;
         string drain;
@@ -96,7 +97,7 @@ int main(int argc, char** argv)
   			lineStream >> token;
   			type = token;
 
-  			/*========================================
+  			/*
   			cout << "Transistor: " << endl;
   			cout << "Alias:" << alias << endl;
   			cout << "Source:" << source << endl;
@@ -107,26 +108,26 @@ int main(int argc, char** argv)
 			*/
 
 			while(lineStream >> token){
-        		if (token.find("L=") != string::npos) {
+        		if ((token.find("L=") != string::npos)|token.find("l=") != string::npos) {
 
         			token.erase(token.begin(),token.begin()+2);
         			gate_lenght = strtod(token.c_str(),&tail);
         			//cout << "Gate Lenght: " << gate_lenght << endl;
 				}
-				else if (token.find("W=") != string::npos)
+				else if ((token.find("W=") != string::npos)|(token.find("w=") != string::npos))
 				{
         			token.erase(token.begin(),token.begin()+2);
         			diff_width = strtod(token.c_str(),&tail);
         			//cout << "Width: " << diff_width << endl;
 				}
-				else if (token.find("F=") != string::npos)
+				else if ((token.find("F=") != string::npos)|(token.find("f=") != string::npos))
 				{
         			token.erase(token.begin(),token.begin()+2);
         			fingers = atoi(token.c_str());
         			//cout << "Fingers: " << fingers << endl;
 				}
 			}
-			if(type[0]=='P'){
+			if((type[0]=='P')|(type[0]=='p')|(type.find("pfet") != string::npos)|(type.find("pch") != string::npos)){
 				Transistor p_transistor(alias, source, drain, gate, bulk, type, diff_width, fingers, gate_lenght, stack);
 				PUN.push_back(p_transistor);
 				//cout << "PMOS ADDED TO PUN LIST" << endl;
@@ -143,8 +144,8 @@ int main(int argc, char** argv)
     
 	   }
 	
-    //int x=0;
 	/*
+    int x=0;
     cout << "----------------------------------------" << endl;
     cout << "PMOS:" << endl;
     for (auto it = begin(PUN); it != end(PUN); ++it){
@@ -159,23 +160,24 @@ int main(int argc, char** argv)
     }
 	*/
 	//Get All PDN and PUN Common Nodes
-	for (auto p_transistor = begin(PUN); p_transistor != end(PUN); ++p_transistor){
-	  for (auto n_transistor = begin(PDN); n_transistor != end(PDN); ++n_transistor){
-      	if (p_transistor->get_source() == n_transistor->get_source()){
-			//cout << p_transistor->get_source() << "=" << n_transistor->get_source() << endl;
-			common_nets.push_back(p_transistor->get_source());
+	
+	for (Transistor p_transistor : PUN){
+	  for (Transistor n_transistor : PDN){
+      	if (p_transistor.get_source() == n_transistor.get_source()){
+			//cout << p_transistor.get_source() << "=" << n_transistor.get_source() << endl;
+			common_nets.push_back(p_transistor.get_source());
 		}
-		else if(p_transistor->get_source() == n_transistor->get_drain()){
-			//cout << p_transistor->get_source()  << "=" << n_transistor->get_drain() << endl;
-			common_nets.push_back(p_transistor->get_source());
+		else if(p_transistor.get_source() == n_transistor.get_drain()){
+			//cout << p_transistor.get_source()  << "=" << n_transistor.get_drain() << endl;
+			common_nets.push_back(p_transistor.get_source());
 		}
-		else if(p_transistor->get_drain() == n_transistor->get_source()){
-			//cout << p_transistor->get_drain() << "=" << n_transistor->get_source() << endl;
-			common_nets.push_back(p_transistor->get_drain());
+		else if(p_transistor.get_drain() == n_transistor.get_source()){
+			//cout << p_transistor.get_drain() << "=" << n_transistor.get_source() << endl;
+			common_nets.push_back(p_transistor.get_drain());
 		}
-		else if(p_transistor->get_drain() == n_transistor->get_drain()){
-			//cout << p_transistor->get_drain() << "=" << n_transistor->get_drain() << endl;
-			common_nets.push_back(p_transistor->get_drain());
+		else if(p_transistor.get_drain() == n_transistor.get_drain()){
+			//cout << p_transistor.get_drain() << "=" << n_transistor.get_drain() << endl;
+			common_nets.push_back(p_transistor.get_drain());
     	}
 		else{
 
@@ -186,7 +188,7 @@ int main(int argc, char** argv)
 	
 	//Remove Common Nodes from the pin list
 	in_pins = pins;
-	distribute_pins(common_nets,in_pins,out_pins);
+	distribute_pins(common_nets, in_pins, out_pins);
 	
 	for (auto it = begin(in_pins); it != end(in_pins); ++it){
 		cout << "input:" << *it << endl;
