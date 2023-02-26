@@ -202,7 +202,6 @@ int main(int argc, char** argv)
 	}
 
 	int circuit_columns = common_nets.size();
-	cout << circuit_columns << endl;
 	vector<string> expressions;
 	for(string common_net: common_nets){
 		//find PUN expression for each common_net
