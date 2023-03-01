@@ -107,26 +107,30 @@ vector<Transistor> remove_two_items(vector<Transistor> PDN, Transistor A, Transi
 	return PDN;
 }
 
-Transistor flatten_parallel(Transistor A, Transistor B){
+Transistor merge_parallel(Transistor A, Transistor B){
 		string type = "";
 		string alias = "";
-		int fingers=0;
+		string bulk = "";
+		string source = A.get_source();
+		string drain = A.get_drain();
+		int fingers = 0;
 		double diff_width = 0.0;
 		double gate_lenght = 0.0;
-		int stack=0;
+		int stack = 0;
 		alias.append("(");
 		alias.append(A.get_gate());
 		alias.append("+");
 		alias.append(B.get_gate());
 		alias.append(")");
-		Transistor group_transistor(alias,  A.get_source(), A.get_drain(), alias, A.get_bulk(), type, diff_width, fingers, gate_lenght, stack);
+		Transistor group_transistor(alias, source , drain, alias, bulk, type, diff_width, fingers, gate_lenght, stack);
 		return group_transistor;
 }
 
-Transistor flatten_series(Transistor A, Transistor B, vector<string>& power_pins, vector<string>& ground_pins){
+Transistor merge_series(Transistor A, Transistor B, vector<string> power_pins, vector<string> ground_pins){
 		string type = "";
 		string alias = "";
 		string source = "";
+		string bulk = "";
 		string drain = "";
 		int fingers=0;
 		double diff_width = 0.0;
@@ -154,7 +158,7 @@ Transistor flatten_series(Transistor A, Transistor B, vector<string>& power_pins
         	source = A.get_source();
 			drain  = B.get_drain();
         }
-		Transistor group_transistor(alias, source, drain, alias, A.get_bulk(), type, diff_width, fingers, gate_lenght, stack);
+		Transistor group_transistor(alias, source, drain, alias, bulk, type, diff_width, fingers, gate_lenght, stack);
 		return group_transistor;
 }
 
@@ -179,7 +183,7 @@ string find_expression_v2(int circuit_columns, string common_net, vector<Transis
 						expression.append(A.get_gate());
 						expression.append("+");
 						expression.append(B.get_gate());
-						Transistor group_transistor = flatten_parallel(A,B);
+						Transistor group_transistor = merge_parallel(A,B);
 						PDN_TEMP.shrink_to_fit();
 						PDN_TEMP.push_back(group_transistor); // insert the merged item
 						PDN_TEMP = remove_two_items(PDN_TEMP, A, B); //remove the two items that were merged
@@ -197,7 +201,7 @@ string find_expression_v2(int circuit_columns, string common_net, vector<Transis
 					expression.append(A.get_gate());
 					expression.append("*");
 					expression.append(B.get_gate());
-					Transistor group_transistor = flatten_series(A, B, power_pins, ground_pins);
+					Transistor group_transistor = merge_series(A, B, power_pins, ground_pins);
 					PDN_TEMP.shrink_to_fit();
 					PDN_TEMP.push_back(group_transistor); // insert the merged item
 					PDN_TEMP = remove_two_items(PDN_TEMP, A, B); //remove the two items that were merged

@@ -24,9 +24,9 @@ bool check_series(Transistor A, Transistor B, vector<string>& power_pins, vector
 //------------------------- Flattening ------------------------------------
 vector<Transistor> remove_two_items(vector<Transistor> PDN, Transistor A, Transistor B);
 
-Transistor flatten_parallel(Transistor A, Transistor B);
+Transistor merge_parallel(Transistor A, Transistor B);
 
-Transistor flatten_series(Transistor A, Transistor B, vector<string>& power_pins, vector<string>& ground_pins);
+Transistor merge_series(Transistor A, Transistor B, vector<string> power_pins, vector<string> ground_pins);
 
 string find_expression_v2(int circuit_columns, string common_net, vector<Transistor> PDN, vector<string>& power_pins, vector<string>& ground_pins);
 
