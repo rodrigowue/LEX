@@ -56,6 +56,15 @@ bool check_parallel(Transistor A, Transistor B){
 	}
 }
 
+bool check_common_net(Transistor T0, string common_net){
+	if (((T0.get_source() == common_net)|(T0.get_drain() == common_net))){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
+
 bool check_pg_pin(string pin, vector<string>& power_pins, vector<string>& ground_pins){
 		for(string vdd_pin: power_pins){
 			if(pin == vdd_pin){
@@ -98,6 +107,57 @@ vector<Transistor> remove_two_items(vector<Transistor> PDN, Transistor A, Transi
 	return PDN;
 }
 
+Transistor flatten_parallel(Transistor A, Transistor B){
+		string type = "";
+		string alias = "";
+		int fingers=0;
+		double diff_width = 0.0;
+		double gate_lenght = 0.0;
+		int stack=0;
+		alias.append("(");
+		alias.append(A.get_gate());
+		alias.append("+");
+		alias.append(B.get_gate());
+		alias.append(")");
+		Transistor group_transistor(alias,  A.get_source(), A.get_drain(), alias, A.get_bulk(), type, diff_width, fingers, gate_lenght, stack);
+		return group_transistor;
+}
+
+Transistor flatten_series(Transistor A, Transistor B, vector<string>& power_pins, vector<string>& ground_pins){
+		string type = "";
+		string alias = "";
+		string source = "";
+		string drain = "";
+		int fingers=0;
+		double diff_width = 0.0;
+		double gate_lenght = 0.0;
+		int stack=0;
+		alias.append("(");
+		alias.append(A.get_gate());
+		alias.append("*");
+		alias.append(B.get_gate());
+		alias.append(")");
+   		//Find the connecting point and preserve the connection
+   		if ( A.get_source() == B.get_source() & (check_pg_pin(A.get_source(), power_pins, ground_pins))){
+        	source = A.get_drain();
+			drain  = B.get_drain();
+        	}
+        else if(A.get_drain() == B.get_drain() & (check_pg_pin(A.get_drain(), power_pins, ground_pins))){
+        	source = A.get_source();
+			drain  = B.get_source();
+        	}
+        else if(A.get_source() == B.get_drain() & (check_pg_pin(A.get_source(), power_pins, ground_pins))){
+        	source = A.get_drain();
+			drain  = B.get_source();
+        	}
+        else{
+        	source = A.get_source();
+			drain  = B.get_drain();
+        }
+		Transistor group_transistor(alias, source, drain, alias, A.get_bulk(), type, diff_width, fingers, gate_lenght, stack);
+		return group_transistor;
+}
+
 string find_expression_v2(int circuit_columns, string common_net, vector<Transistor> PDN, vector<string>& power_pins, vector<string>& ground_pins){
 	vector<Transistor> PDN_TEMP = PDN;
     string alias = "";
@@ -115,20 +175,11 @@ string find_expression_v2(int circuit_columns, string common_net, vector<Transis
 	if (PDN.size() > circuit_columns){
 		Transistor A = *a_pointer;
 				for (Transistor B : PDN){
-	  				if ((check_parallel(A,B) == true) & (A.get_alias() != B.get_alias()) & ((A.get_source() == common_net)|(A.get_drain() == common_net)|(B.get_source() == common_net)|(B.get_drain() == common_net))){
+	  				if ((check_parallel(A,B) == true) & (A.get_alias() != B.get_alias()) & (check_common_net(A,common_net)|check_common_net(B,common_net))){
 						expression.append(A.get_gate());
 						expression.append("+");
 						expression.append(B.get_gate());
-						alias = "";
-						alias.append("(");
-						alias.append(A.get_gate());
-						alias.append("+");
-						alias.append(B.get_gate());
-						alias.append(")");
-						gate = alias;
-						source = A.get_source();
-						drain  = A.get_drain();
-						Transistor group_transistor(alias, source, drain, gate, bulk, type, diff_width, fingers, gate_lenght, stack);
+						Transistor group_transistor = flatten_parallel(A,B);
 						PDN_TEMP.shrink_to_fit();
 						PDN_TEMP.push_back(group_transistor); // insert the merged item
 						PDN_TEMP = remove_two_items(PDN_TEMP, A, B); //remove the two items that were merged
@@ -142,37 +193,11 @@ string find_expression_v2(int circuit_columns, string common_net, vector<Transis
 						}
 						
 	  				}
-	  				else if ((check_series(A,B,power_pins,ground_pins,common_net) == true) & (A.get_alias() != B.get_alias()) & ((A.get_source() == common_net)|(A.get_drain() == common_net)|(B.get_source() == common_net)|(B.get_drain() == common_net))){
+	  				else if ((check_series(A,B,power_pins,ground_pins,common_net) == true) & (A.get_alias() != B.get_alias()) & (check_common_net(A,common_net)|check_common_net(B,common_net))){
 					expression.append(A.get_gate());
 					expression.append("*");
 					expression.append(B.get_gate());
-					alias = "";
-					alias.append("(");
-					alias.append(A.get_gate());
-					alias.append("*");
-					alias.append(B.get_gate());
-					alias.append(")");
-					gate = alias;
-
-            		//Find the connecting point and preserve the connection
-            		if ( A.get_source() == B.get_source() & (check_pg_pin(A.get_source(),power_pins,ground_pins))){
-            		    source = A.get_drain();
-					    drain  = B.get_drain();
-            		}
-            		else if(A.get_drain() == B.get_drain() & (check_pg_pin(A.get_drain(),power_pins,ground_pins))){
-            		    source = A.get_source();
-					    drain  = B.get_source();
-            		}
-            		else if(A.get_source() == B.get_drain() & (check_pg_pin(A.get_source(),power_pins,ground_pins))){
-            		    source = A.get_drain();
-					    drain  = B.get_source();
-            		}
-            		else{
-            		    source = A.get_source();
-					    drain  = B.get_drain();
-            		}
-            
-					Transistor group_transistor(alias, source, drain, gate, bulk, type, diff_width, fingers, gate_lenght, stack);
+					Transistor group_transistor = flatten_series(A, B, power_pins, ground_pins);
 					PDN_TEMP.shrink_to_fit();
 					PDN_TEMP.push_back(group_transistor); // insert the merged item
 					PDN_TEMP = remove_two_items(PDN_TEMP, A, B); //remove the two items that were merged
