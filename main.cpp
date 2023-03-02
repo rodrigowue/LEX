@@ -205,10 +205,10 @@ int main(int argc, char** argv)
 	vector<string> expressions;
 	for(string common_net: common_nets){
 		//find PUN expression for each common_net
-		string pun_expression = find_expression_v2(circuit_columns, common_net, PUN, power_pins, ground_pins);
+		string pun_expression = find_expression(circuit_columns, common_net, PUN, power_pins, ground_pins);
 		cout << common_net << "=" << pun_expression << endl;
 		//find PDN expression for each common_net
-		string pdn_expression = find_expression_v2(circuit_columns, common_net, PDN, power_pins, ground_pins);
+		string pdn_expression = find_expression(circuit_columns, common_net, PDN, power_pins, ground_pins);
 		cout << common_net << "=" << pdn_expression << endl;
 		//Merge eexpressions into one
 		expressions.push_back("!("+pun_expression+"*"+pdn_expression+")");
