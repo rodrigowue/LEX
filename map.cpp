@@ -47,6 +47,10 @@ void distribute_pins(vector<string>& common_nets, vector<string>& in_pins, vecto
 	return;
 };
 
+// -----------------------------------------------------------------------------------
+//                            CHECKS
+// -----------------------------------------------------------------------------------
+
 bool check_parallel(Transistor A, Transistor B){
 	if ((( A.get_source() == B.get_source() ) && ( A.get_drain() == B.get_drain())) | (( A.get_drain() == B.get_source() ) && ( A.get_source() == B.get_drain()))){
 		return true;
@@ -91,21 +95,9 @@ bool check_series(Transistor A, Transistor B, vector<string>& power_pins, vector
 	}
 }
 
-vector<Transistor> remove_two_items(vector<Transistor> PDN, Transistor A, Transistor B){
-	for (auto it_rm = begin(PDN); it_rm != end(PDN); ){
-		if (it_rm->get_alias() == B.get_alias()){
-    		PDN.erase(it_rm);
-			}
-		else if(it_rm->get_alias() == A.get_alias()){
-			PDN.erase(it_rm);
-			}
-		else{
-			it_rm++;
-			}
-		}
-
-	return PDN;
-}
+// -----------------------------------------------------------------------------------
+//                            FLATTENING
+// -----------------------------------------------------------------------------------
 
 Transistor merge_parallel(Transistor A, Transistor B){
 		string type = "";
@@ -163,8 +155,8 @@ Transistor merge_series(Transistor A, Transistor B, vector<string> power_pins, v
 }
 
 string find_expression_v2(int circuit_columns, string common_net, vector<Transistor> PDN, vector<string>& power_pins, vector<string>& ground_pins){
-	vector<Transistor> PDN_TEMP = PDN;
-    string alias = "";
+    vector<Transistor> PDN_TEMP = PDN;
+	string alias = "";
     string source = "";
     string drain = "";
     string gate = "";
@@ -174,55 +166,48 @@ string find_expression_v2(int circuit_columns, string common_net, vector<Transis
     int fingers=0;
     double gate_lenght = 0.0;
     int stack=0;
-	auto a_pointer = PDN_TEMP.begin();
+	bool parallel_search = true;
+	int i=0;
 	string expression = "";
-	if (PDN.size() > circuit_columns){
-		Transistor A = *a_pointer;
-				for (Transistor B : PDN){
+	for (int i = 0; i < PDN_TEMP.size() - 1; i++) {
+        Transistor& A = PDN_TEMP[i];
+        for (int j = i + 1; j < PDN_TEMP.size(); j++) {
+            Transistor& B = PDN_TEMP[j];
 	  				if ((check_parallel(A,B) == true) & (A.get_alias() != B.get_alias()) & (check_common_net(A,common_net)|check_common_net(B,common_net))){
-						expression.append(A.get_gate());
-						expression.append("+");
-						expression.append(B.get_gate());
 						Transistor group_transistor = merge_parallel(A,B);
-						PDN_TEMP.shrink_to_fit();
+						PDN_TEMP.erase(PDN_TEMP.begin() + j);
+                		PDN_TEMP.erase(PDN_TEMP.begin() + i);
 						PDN_TEMP.push_back(group_transistor); // insert the merged item
-						PDN_TEMP = remove_two_items(PDN_TEMP, A, B); //remove the two items that were merged
 						if(PDN_TEMP.size()==circuit_columns){
 							return (PDN_TEMP.front()).get_alias();
 							break;
 						}
 						else{
-							expression = find_expression_v2(circuit_columns, common_net, PDN_TEMP, power_pins, ground_pins);
+							i = -1;
 							break;
 						}
 						
 	  				}
 	  				else if ((check_series(A,B,power_pins,ground_pins,common_net) == true) & (A.get_alias() != B.get_alias()) & (check_common_net(A,common_net)|check_common_net(B,common_net))){
-					expression.append(A.get_gate());
-					expression.append("*");
-					expression.append(B.get_gate());
 					Transistor group_transistor = merge_series(A, B, power_pins, ground_pins);
-					PDN_TEMP.shrink_to_fit();
+					PDN_TEMP.erase(PDN_TEMP.begin() + j);
+                	PDN_TEMP.erase(PDN_TEMP.begin() + i);
 					PDN_TEMP.push_back(group_transistor); // insert the merged item
-					PDN_TEMP = remove_two_items(PDN_TEMP, A, B); //remove the two items that were merged
 					if(PDN_TEMP.size()==circuit_columns){
 						return (PDN_TEMP.front()).get_alias();
 						break;
 					}
 					else{
-						expression = find_expression_v2(circuit_columns, common_net, PDN_TEMP, power_pins, ground_pins);
+						i = -1;
 						break;
 					}
 	  			}
-				else{
-					a_pointer++;
-				}
 			}
 	}
 	if (expression==""){
-		for(Transistor transistor: PDN){
-			if((transistor.get_drain()==common_net)|(transistor.get_source()==common_net)){
-				return transistor.get_gate();
+		for(Transistor t1: PDN){
+			if(check_common_net(t1,common_net)){
+				return t1.get_gate();
 			}
 		}
 	}
@@ -266,7 +251,7 @@ string find_expression(vector<Transistor> PDN){
 				Transistor group_transistor(alias, source, drain, gate, bulk, type, diff_width, fingers, gate_lenght, stack);
 				PDN_TEMP.shrink_to_fit();
 				PDN_TEMP.push_back(group_transistor); // insert the merged item
-				PDN_TEMP = remove_two_items(PDN_TEMP, A, B); //remove the two items that were merged
+				//PDN_TEMP = remove_two_items(PDN_TEMP, A, B); //remove the two items that were merged
 				if (PDN_TEMP.size() == 1){
 					return (PDN_TEMP.front()).get_alias();
 					break;
@@ -309,7 +294,7 @@ string find_expression(vector<Transistor> PDN){
 			Transistor group_transistor(alias, source, drain, gate, bulk, type, diff_width, fingers, gate_lenght, stack);
 			PDN_TEMP.shrink_to_fit();
 			PDN_TEMP.push_back(group_transistor);
-			PDN_TEMP = remove_two_items(PDN_TEMP, A, B); //remove the two items that were merged
+			//PDN_TEMP = remove_two_items(PDN_TEMP, A, B); //remove the two items that were merged
 			if (PDN_TEMP.size() == 1){
 				return (PDN_TEMP.front()).get_alias();
 				break;
@@ -356,6 +341,9 @@ string flatten_expression(vector<string> common_nets, vector<string> expressions
 }
 
 
+// -----------------------------------------------------------------------------------
+//                            SOLVER
+// -----------------------------------------------------------------------------------
 
 int solve_boolean_expression(string expression){
 	if (expression.size() > 1){
@@ -403,6 +391,10 @@ void replace_all(
     buf.append(s, prevPos, s.size() - prevPos);
     s.swap(buf);
 }
+
+// -----------------------------------------------------------------------------------
+//                            ARC FINDER
+// -----------------------------------------------------------------------------------
 
 vector<string> find_arcs(vector<string> in_pins, string expression){
 	vector<string> arcs;
