@@ -211,7 +211,8 @@ int main(int argc, char** argv)
 		string pdn_expression = find_expression(circuit_columns, common_net, PDN, power_pins, ground_pins);
 		cout << common_net << "=" << pdn_expression << endl;
 		//Merge eexpressions into one
-		expressions.push_back("!("+pun_expression+"*"+pdn_expression+")");
+		//expressions.push_back("!("+pun_expression+"*"+pdn_expression+")");
+		expressions.push_back("!" + pdn_expression);
 	}
 
 	string expression;
