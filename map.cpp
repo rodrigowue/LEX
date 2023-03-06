@@ -302,7 +302,9 @@ int solve_boolean_expression(string expression){
 		replace_all(expression, "(1*1)", "1");
 
 		replace_all(expression, "!1", "0");
+		replace_all(expression, "!(1)", "0");
 		replace_all(expression, "!0", "1");
+		replace_all(expression, "!(0)", "1");
 		return solve_boolean_expression(expression);
 		}
 	else{
