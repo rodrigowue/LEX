@@ -81,15 +81,15 @@ return Transistor::type;
 }
 
 double Transistor::get_diff_width( ){
-
+return Transistor::diff_width;
 }
 
 int Transistor::get_fingers( ){
-
+return Transistor::fingers;
 }
 
 double Transistor::get_gate_lenght( ){
-
+return Transistor::gate_lenght;
 }
 
 int Transistor::get_stack( ){
