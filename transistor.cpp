@@ -16,43 +16,43 @@ Transistor::Transistor(string alias, string source, string drain, string gate, s
 }
 
 void Transistor::set_alias(string alias){
-
+	Transistor::alias = alias;
 }
 
 void Transistor::set_source(string source){
-
+	Transistor::source = source;
 }
 
 void Transistor::set_drain(string drain){
-
+	Transistor::drain = drain;
 }
 
 void Transistor::set_gate(string gate){
-
+	Transistor::gate = gate;
 }
 
 void Transistor::set_bulk(string bulk){
-
+	Transistor::bulk = bulk;
 }
 
 void Transistor::set_type(string type){
-
+	Transistor::type = type;
 }
 
 void Transistor::set_diff_width(double width){
-
+	Transistor::diff_width = diff_width;
 }
 
 void Transistor::set_fingers(int fingers){
-
+	Transistor::fingers = fingers;
 }
 
 void Transistor::set_gate_lenght(double gate_lenght){
-
+	Transistor::gate_lenght = gate_lenght;
 }
 
 void Transistor::set_stack(int stack){
-
+	Transistor::stack = stack;
 }
 
 
@@ -73,11 +73,11 @@ return Transistor::gate;
 }
 
 string Transistor::get_bulk( ){
-
+return Transistor::bulk;
 }
 
 string Transistor::get_type( ){
-
+return Transistor::type;
 }
 
 double Transistor::get_diff_width( ){
@@ -93,5 +93,5 @@ double Transistor::get_gate_lenght( ){
 }
 
 int Transistor::get_stack( ){
-
+return Transistor::stack;
 }

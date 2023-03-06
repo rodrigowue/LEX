@@ -83,7 +83,7 @@ int main(int argc, char** argv)
         double diff_width;
         int fingers=0;
         double gate_lenght;
-        int stack=0;
+        int stack = 1;
         char * tail;
 
   			alias = token;

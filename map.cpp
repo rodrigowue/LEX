@@ -51,7 +51,7 @@ void distribute_pins(vector<string>& common_nets, vector<string>& in_pins, vecto
 //                            CHECKS
 // -----------------------------------------------------------------------------------
 
-bool check_parallel(Transistor A, Transistor B){
+bool check_parallel(Transistor& A, Transistor& B){
 	if ((( A.get_source() == B.get_source() ) && ( A.get_drain() == B.get_drain())) | (( A.get_drain() == B.get_source() ) && ( A.get_source() == B.get_drain()))){
 		return true;
 	}
@@ -60,7 +60,7 @@ bool check_parallel(Transistor A, Transistor B){
 	}
 }
 
-bool check_common_net(Transistor T0, string common_net){
+bool check_common_net(Transistor& T0, string& common_net){
 	if (((T0.get_source() == common_net)|(T0.get_drain() == common_net))){
 		return true;
 	}
@@ -70,24 +70,24 @@ bool check_common_net(Transistor T0, string common_net){
 }
 
 bool check_pg_pin(string pin, vector<string>& power_pins, vector<string>& ground_pins){
-		for(string vdd_pin: power_pins){
-			if(pin == vdd_pin){
+		for (int i = 0; i < power_pins.size(); i++){
+			if(pin == power_pins[i]){
 				return false;
 			}
 		}
-		for(string gnd_pin: ground_pins){
-			if(pin == gnd_pin){
+		for (int i = 0; i < ground_pins.size(); i++){
+			if(pin == ground_pins[i]){
 				return false;
 			}
 		}
 		return true;
 }
 
-bool check_series(Transistor A, Transistor B, vector<string>& power_pins, vector<string>& ground_pins, string& common_net){
-	if (((( A.get_source() == B.get_source() ) & (A.get_source() != common_net))|
-		 (( A.get_drain() == B.get_drain())    & (A.get_drain() != common_net )))|
-		((( A.get_source() == B.get_drain())   & (A.get_source() != common_net))|
-		 (( A.get_drain() == B.get_source())   & (A.get_drain() != common_net )))){
+bool check_series(Transistor& A, Transistor& B, vector<string>& power_pins, vector<string>& ground_pins, string& common_net){
+	if ( (( A.get_source() == B.get_source() ) & (check_pg_pin(A.get_source()  , power_pins, ground_pins)) & (A.get_drain()  != B.get_drain() )) |
+		 (( A.get_drain() == B.get_drain()   ) & (check_pg_pin(A.get_drain() , power_pins, ground_pins)) & (A.get_source() != A.get_source())) |
+		 (( A.get_source() == B.get_drain()  ) & (check_pg_pin(A.get_source()  , power_pins, ground_pins)) & (A.get_drain()  != B.get_source())) |
+		 (( A.get_drain() == B.get_source()  ) & (check_pg_pin(A.get_drain() , power_pins, ground_pins)) & (A.get_source() != B.get_drain() )) ){
 		return true;
 	}
 	else{
@@ -103,8 +103,8 @@ Transistor merge_parallel(Transistor A, Transistor B){
 		string type = "";
 		string alias = "";
 		string bulk = "";
-		string source = A.get_source();
-		string drain = A.get_drain();
+		string source = "";
+		string drain = "";
 		int fingers = 0;
 		double diff_width = 0.0;
 		double gate_lenght = 0.0;
@@ -114,6 +114,8 @@ Transistor merge_parallel(Transistor A, Transistor B){
 		alias.append("+");
 		alias.append(B.get_gate());
 		alias.append(")");
+        source = A.get_source();
+		drain  = B.get_drain();
 		Transistor group_transistor(alias, source , drain, alias, bulk, type, diff_width, fingers, gate_lenght, stack);
 		return group_transistor;
 }
@@ -127,7 +129,7 @@ Transistor merge_series(Transistor A, Transistor B, vector<string> power_pins, v
 		int fingers=0;
 		double diff_width = 0.0;
 		double gate_lenght = 0.0;
-		int stack=0;
+		int stack = A.get_stack() + B.get_stack();
 		alias.append("(");
 		alias.append(A.get_gate());
 		alias.append("*");
@@ -135,7 +137,7 @@ Transistor merge_series(Transistor A, Transistor B, vector<string> power_pins, v
 		alias.append(")");
    		//Find the connecting point and preserve the connection
    		if ( A.get_source() == B.get_source() & (check_pg_pin(A.get_source(), power_pins, ground_pins))){
-        	source = A.get_drain();
+			source = A.get_drain();
 			drain  = B.get_drain();
         	}
         else if(A.get_drain() == B.get_drain() & (check_pg_pin(A.get_drain(), power_pins, ground_pins))){
@@ -156,20 +158,27 @@ Transistor merge_series(Transistor A, Transistor B, vector<string> power_pins, v
 
 string find_expression(int circuit_columns, string common_net, vector<Transistor> PDN, vector<string>& power_pins, vector<string>& ground_pins){
     vector<Transistor> PDN_TEMP = PDN;
-
 	string expression = "";
+	
 	for (int i = 0; i < PDN_TEMP.size() - 1; i++) {
-        Transistor& A = PDN_TEMP[i];
+        Transistor& t1 = PDN_TEMP[i];
         for (int j = i + 1; j < PDN_TEMP.size(); j++) {
-            Transistor& B = PDN_TEMP[j];
-	  				if ((check_parallel(A,B) == true) & (A.get_alias() != B.get_alias()) & (check_common_net(A,common_net)|check_common_net(B,common_net))){
-						Transistor group_transistor = merge_parallel(A,B);
+            Transistor& t2 = PDN_TEMP[j];
+	  				if ((check_parallel(t1,t2))){
+						Transistor group_transistor = merge_parallel(t1, t2);
 						PDN_TEMP.erase(PDN_TEMP.begin() + j);
                 		PDN_TEMP.erase(PDN_TEMP.begin() + i);
 						PDN_TEMP.push_back(group_transistor); // insert the merged item
-						if(PDN_TEMP.size()==circuit_columns){
+						if(PDN_TEMP.size() == circuit_columns){
+							if(check_common_net(PDN_TEMP.front(),common_net)){
+								return (PDN_TEMP.front()).get_alias();
+							}
+							for (int n = 0; n < PDN_TEMP.size(); n++){
+								if(check_common_net(PDN_TEMP[n],common_net)){
+									return PDN_TEMP[n].get_alias();
+								}
+							}
 							return (PDN_TEMP.front()).get_alias();
-							break;
 						}
 						else{
 							i = -1;
@@ -177,14 +186,28 @@ string find_expression(int circuit_columns, string common_net, vector<Transistor
 						}
 						
 	  				}
-	  				else if ((check_series(A,B,power_pins,ground_pins,common_net) == true) & (A.get_alias() != B.get_alias()) & (check_common_net(A,common_net)|check_common_net(B,common_net))){
-					Transistor group_transistor = merge_series(A, B, power_pins, ground_pins);
+		}
+	}
+	for (int i = 0; i < PDN_TEMP.size() - 1; i++) {
+        Transistor& t1 = PDN_TEMP[i];
+        for (int j = i + 1; j < PDN_TEMP.size(); j++) {
+            Transistor& t2 = PDN_TEMP[j];
+	  				if ((check_series(t1, t2, power_pins, ground_pins, common_net))){
+					Transistor group_transistor = merge_series(t1, t2, power_pins, ground_pins);
 					PDN_TEMP.erase(PDN_TEMP.begin() + j);
                 	PDN_TEMP.erase(PDN_TEMP.begin() + i);
 					PDN_TEMP.push_back(group_transistor); // insert the merged item
-					if(PDN_TEMP.size()==circuit_columns){
-						return (PDN_TEMP.front()).get_alias();
-						break;
+					if(PDN_TEMP.size() == circuit_columns){
+						if(check_common_net(PDN_TEMP.front(),common_net)){
+								return (PDN_TEMP.front()).get_alias();
+							}
+							for (int n = 0; n < PDN_TEMP.size(); n++){
+								Transistor tt = PDN_TEMP[n];
+								if(check_common_net(tt,common_net)){
+									return tt.get_alias();
+								}
+							}
+							return (PDN_TEMP.front()).get_alias();
 					}
 					else{
 						i = -1;
@@ -193,6 +216,37 @@ string find_expression(int circuit_columns, string common_net, vector<Transistor
 	  			}
 			}
 	}
+	for (int i = 0; i < PDN_TEMP.size() - 1; i++) {
+        Transistor& t1 = PDN_TEMP[i];
+        for (int j = i + 1; j < PDN_TEMP.size(); j++) {
+            Transistor& t2 = PDN_TEMP[j];
+	  				if ((check_parallel(t1,t2))){
+						Transistor group_transistor = merge_parallel(t1, t2);
+						PDN_TEMP.erase(PDN_TEMP.begin() + j);
+                		PDN_TEMP.erase(PDN_TEMP.begin() + i);
+						PDN_TEMP.push_back(group_transistor); // insert the merged item
+						if(PDN_TEMP.size() == circuit_columns){
+							if(check_common_net(PDN_TEMP.front(),common_net)){
+								return (PDN_TEMP.front()).get_alias();
+							}
+							for (int n = 0; n < PDN_TEMP.size(); n++){
+								
+								Transistor tt = PDN_TEMP[n];
+								if(check_common_net(tt,common_net)){
+									return tt.get_alias();
+								}
+							}
+							return (PDN_TEMP.front()).get_alias();
+						}
+						else{
+							i = -1;
+							break;
+						}
+						
+	  				}
+		}
+	}
+
 	if (expression==""){
 		for(Transistor t1: PDN){
 			if(check_common_net(t1,common_net)){
