@@ -255,9 +255,9 @@ string flatten_expression(vector<string> common_nets, vector<string> expressions
 		for (int i = 0 ; i < common_nets.size(); i++){
 			for (auto it2 = begin(expressions)+1; (it2 != end(expressions)); ++it2){
 			if(it2->find(common_nets.at(i)) != string::npos){
-				cout << "it2:" << *it2 << endl;
-				cout << "exp:" << expressions.at(i) << endl;
-				cout << "commo:" << common_nets.at(i) << endl;
+				//cout << "it2:" << *it2 << endl;
+				//cout << "exp:" << expressions.at(i) << endl;
+				//cout << "commo:" << common_nets.at(i) << endl;
 				string what_it_is =  common_nets.at(i);
 				string what_it_will_be = expressions.at(i);
 				replace_all(*it2, what_it_is, what_it_will_be);
