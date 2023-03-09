@@ -7,6 +7,8 @@ using namespace std;
 //------------------------- CLI -------------------------------------------
 void print_logo();
 
+void print_transistor(Transistor& t1);
+
 //------------------------- Pin Related -----------------------------------
 vector<string> remove_pin(vector<string> pin_list, string pin);
 
@@ -24,11 +26,11 @@ bool check_series(Transistor& A, Transistor& B, vector<string>& power_pins, vect
 //------------------------- Flattening ------------------------------------
 //-- find and merge parallel
 Transistor merge_parallel(Transistor A, Transistor B);
-vector<Transistor> collapse_parallel(int circuit_columns, vector<Transistor> transistor_network);
+vector<Transistor> collapse_parallel(int circuit_columns, vector<Transistor>& transistor_network);
 
 //-- find and merge parallel
 Transistor merge_series(Transistor A, Transistor B, vector<string> power_pins, vector<string> ground_pins);
-vector<Transistor> collapse_series(int circuit_columns, string common_net, vector<Transistor> transistor_network, vector<string>& power_pins, vector<string>& ground_pins);
+vector<Transistor> collapse_series(int circuit_columns, string common_net, vector<Transistor>& transistor_network, vector<string>& power_pins, vector<string>& ground_pins);
 
 // find the expression.
 string find_expression(int circuit_columns, string common_net, vector<Transistor> transistor_network, vector<string>& power_pins, vector<string>& ground_pins);

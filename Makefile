@@ -6,7 +6,7 @@ SRC     := src
 INCLUDE := include
 
 LIBRARIES   := map.cpp transistor.cpp
-EXECUTABLE  := a.out
+EXECUTABLE  := s2cae
 
 
 all: $(EXECUTABLE)
@@ -14,7 +14,7 @@ all: $(EXECUTABLE)
 run: ./$(EXECUTABLE)
 
 $(EXECUTABLE): *.cpp
-	$(CXX) $(CXX_FLAGS) main.cpp $(LIBRARIES)
+	$(CXX) $(CXX_FLAGS) main.cpp $(LIBRARIES) -o $(EXECUTABLE)
 
 clean:
 	-rm $(EXECUTABLE)

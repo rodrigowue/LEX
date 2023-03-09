@@ -12,6 +12,16 @@ cout << "       [UNDER DEVELOPMENT]" << endl;
 cout << "======================================" << endl;
 };
 
+void print_transistor(Transistor& t1){
+	cout << "-------------------------" << endl;
+	cout << "Alias:" << t1.get_alias() << endl;
+	cout << "source:" << t1.get_source() << endl;
+	cout << "gate:" << t1.get_gate() << endl;
+	cout << "drain:" << t1.get_drain() << endl;
+	cout << "-------------------------" << endl;
+
+};
+
 vector<string> remove_pin(vector<string> pin_list, string pin){
 	for (auto it_rm = begin(pin_list); it_rm != end(pin_list); ){
 		if (*it_rm == pin){
@@ -115,7 +125,7 @@ Transistor merge_parallel(Transistor A, Transistor B){
 		alias.append(B.get_gate());
 		alias.append(")");
         source = A.get_source();
-		drain  = B.get_drain();
+		drain  = A.get_drain();
 		Transistor group_transistor(alias, source , drain, alias, bulk, type, diff_width, fingers, gate_lenght, stack);
 		return group_transistor;
 }
@@ -156,7 +166,7 @@ Transistor merge_series(Transistor A, Transistor B, vector<string> power_pins, v
 		return group_transistor;
 }
 
-vector<Transistor> collapse_parallel(int circuit_columns, vector<Transistor> transistor_network){
+vector<Transistor> collapse_parallel(int circuit_columns, vector<Transistor>& transistor_network){
 	for (int i = 0; i < transistor_network.size() - 1; i++) {
         Transistor& t1 = transistor_network[i];
         for (int j = i + 1; j < transistor_network.size(); j++) {
@@ -181,7 +191,7 @@ vector<Transistor> collapse_parallel(int circuit_columns, vector<Transistor> tra
 	return transistor_network;
 }
 
-vector<Transistor> collapse_series(int circuit_columns, string common_net, vector<Transistor> transistor_network, vector<string>& power_pins, vector<string>& ground_pins){
+vector<Transistor> collapse_series(int circuit_columns, string common_net, vector<Transistor>& transistor_network, vector<string>& power_pins, vector<string>& ground_pins){
 	for (int i = 0; i < transistor_network.size() - 1; i++) {
         Transistor& t1 = transistor_network[i];
         for (int j = i + 1; j < transistor_network.size(); j++) {
@@ -210,28 +220,36 @@ string find_expression(int circuit_columns, string common_net, vector<Transistor
 	//collapse until its is done
 	while (temp_transistor_network.size() > circuit_columns)
 	{
+		//Find Parrallel Transistors and Collapse them into Pseudo Transistors
 		
-		temp_transistor_network = collapse_parallel(circuit_columns, temp_transistor_network);
+		collapse_parallel(circuit_columns, temp_transistor_network);
 		
+		//If the number of pseudo transistors is the same as the amount of common nets
 		if(temp_transistor_network.size() == circuit_columns){
 			if(temp_transistor_network.size() == 1){
 				return (temp_transistor_network.front()).get_alias();
 			}
 			else{
-				for(Transistor t1: temp_transistor_network){
-				if(check_common_net(t1, common_net) & ((t1.get_alias()).find("(") != string::npos)){
-					return t1.get_alias();
-				}
+				for(int i = 0; i < temp_transistor_network.size(); i++){
+						//print_transistor(temp_transistor_network[i]);
+						//cout << common_net << endl;
+						if(check_common_net(temp_transistor_network[i], common_net)){
+							temp_transistor_network[i].set_alias(temp_transistor_network[i].get_gate());
+							return (temp_transistor_network[i]).get_alias();
+					}
 				}
 			}
 		}
 		else{
-			temp_transistor_network = collapse_series(circuit_columns, common_net, temp_transistor_network, power_pins, ground_pins);
-		
+			//Find Series Transistors and Collapse them into Pseudo Transistors
+			collapse_series(circuit_columns, common_net, temp_transistor_network, power_pins, ground_pins);
 			if(temp_transistor_network.size() == circuit_columns){
-				for(Transistor t1: temp_transistor_network){
-					if(check_common_net(t1, common_net) & ((t1.get_alias()).find("(") != string::npos)){
-						return t1.get_alias();
+				for(int i = 0; i < temp_transistor_network.size(); i++){
+						//print_transistor(temp_transistor_network[i]);
+						//cout << common_net << endl;
+						if(check_common_net(temp_transistor_network[i], common_net)){
+							temp_transistor_network[i].set_alias(temp_transistor_network[i].get_gate());
+							return (temp_transistor_network[i]).get_alias();
 					}
 				}
 			}

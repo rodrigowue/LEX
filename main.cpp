@@ -144,9 +144,9 @@ int main(int argc, char** argv)
     	}
     
 	   }
+
 	
-	/*
-    int x=0;
+    /*int x=0;
     cout << "----------------------------------------" << endl;
     cout << "PMOS:" << endl;
     for (auto it = begin(PUN); it != end(PUN); ++it){
@@ -158,8 +158,8 @@ int main(int argc, char** argv)
     for (auto it = begin(PDN); it != end(PDN); ++it){
       cout << x << ":" << it->get_alias() << " " << it->get_source() << " " << it->get_drain() << endl;
       x++;
-    }
-	*/
+    }*/
+	
 	//Get All PDN and PUN Common Nodes
 	
 	for (Transistor p_transistor : PUN){
@@ -206,10 +206,10 @@ int main(int argc, char** argv)
 	for(string common_net: common_nets){
 		//find PUN expression for each common_net
 		string pun_expression = find_expression(circuit_columns, common_net, PUN, power_pins, ground_pins);
-		cout << common_net << "=" << pun_expression << endl;
+		cout << "PUN:" << common_net << "=" << pun_expression << endl;
 		//find PDN expression for each common_net
 		string pdn_expression = find_expression(circuit_columns, common_net, PDN, power_pins, ground_pins);
-		cout << common_net << "=" << pdn_expression << endl;
+		cout << "PDN:" << common_net << "=" << pdn_expression << endl;
 		//Merge eexpressions into one
 		//expressions.push_back("!("+pun_expression+"*"+pdn_expression+")");
 		expressions.push_back("!" + pdn_expression);
