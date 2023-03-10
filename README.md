@@ -17,7 +17,7 @@ To run:
 
 ```
 make
-./a.out <spice file>
+./s2cae <spice file>
 ```
 
 or
