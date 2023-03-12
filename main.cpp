@@ -58,11 +58,11 @@ int main(int argc, char** argv)
 			cout << "Subcircuit:" << token << endl;
   			while(lineStream >> token)
     		{
-        		if ((token == "VDD")|(token == "vdd")|(token == "VPWR")|(token == "VPB")) {;
+        		if ((token == "VDD")|(token == "vdd")|(token == "VPWR")|(token == "VPB")|(token == "VPP")) {;
         			power_pins.push_back(token);
 					//cout << "vdd:" << token << endl;
 				}
-				else if((token == "GND")|(token == "gnd")|(token == "VSS")|(token == "vss")|(token == "VGND")|(token == "VNB")){
+				else if((token == "GND")|(token == "gnd")|(token == "VSS")|(token == "vss")|(token == "VGND")|(token == "VNB")|(token == "VBB")){
 					ground_pins.push_back(token);
 					//cout << "gnd:" << token << endl;
 				}
@@ -128,7 +128,7 @@ int main(int argc, char** argv)
         			//cout << "Fingers: " << fingers << endl;
 				}
 			}
-			if((type[0]=='P')|(type[0]=='p')|(type.find("pfet") != string::npos)|(type.find("pch") != string::npos)){
+			if((type[0]=='P')|(type[0]=='p')|(type.find("pfet") != string::npos)|(type.find("pch") != string::npos)|(type.find("P12") != string::npos)){
 				Transistor p_transistor(alias, source, drain, gate, bulk, type, diff_width, fingers, gate_lenght, stack);
 				PUN.push_back(p_transistor);
 				//cout << "PMOS ADDED TO PUN LIST" << endl;
@@ -146,19 +146,19 @@ int main(int argc, char** argv)
 	   }
 
 	
-    /*int x=0;
+    int x=0;
     cout << "----------------------------------------" << endl;
     cout << "PMOS:" << endl;
     for (auto it = begin(PUN); it != end(PUN); ++it){
-      cout << x << ":" << it->get_alias() << " " << it->get_source() << " " << it->get_drain() << endl;
+      cout << x << ":" << it->get_alias() << " " << it->get_source() << " " << it->get_gate() << " " << it->get_drain() << endl;
       x++;
     }
 
     cout << "NMOS:" << endl;
     for (auto it = begin(PDN); it != end(PDN); ++it){
-      cout << x << ":" << it->get_alias() << " " << it->get_source() << " " << it->get_drain() << endl;
+      cout << x << ":" << it->get_alias() << " " << it->get_source() << " " << it->get_gate() << " " << it->get_drain() << endl;
       x++;
-    }*/
+    }
 	
 	//Get All PDN and PUN Common Nodes
 	
@@ -212,7 +212,7 @@ int main(int argc, char** argv)
 		cout << "PDN:" << common_net << "=" << pdn_expression << endl;
 		//Merge eexpressions into one
 		//expressions.push_back("!("+pun_expression+"*"+pdn_expression+")");
-		expressions.push_back("!" + pdn_expression);
+		expressions.push_back("(!" + pun_expression + ")*(!" + pdn_expression + ")");
 	}
 
 	string expression;

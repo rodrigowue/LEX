@@ -227,7 +227,7 @@ string find_expression(int circuit_columns, string common_net, vector<Transistor
 		//If the number of pseudo transistors is the same as the amount of common nets
 		if(temp_transistor_network.size() == circuit_columns){
 			if(temp_transistor_network.size() == 1){
-				return (temp_transistor_network.front()).get_alias();
+				return (temp_transistor_network.front()).get_gate();
 			}
 			else{
 				for(int i = 0; i < temp_transistor_network.size(); i++){
@@ -244,6 +244,10 @@ string find_expression(int circuit_columns, string common_net, vector<Transistor
 			//Find Series Transistors and Collapse them into Pseudo Transistors
 			collapse_series(circuit_columns, common_net, temp_transistor_network, power_pins, ground_pins);
 			if(temp_transistor_network.size() == circuit_columns){
+				if(temp_transistor_network.size() == 1){
+				return (temp_transistor_network.front()).get_gate();
+			}
+			else{
 				for(int i = 0; i < temp_transistor_network.size(); i++){
 						//print_transistor(temp_transistor_network[i]);
 						//cout << common_net << endl;
@@ -252,6 +256,7 @@ string find_expression(int circuit_columns, string common_net, vector<Transistor
 							return (temp_transistor_network[i]).get_alias();
 					}
 				}
+			}
 			}
 		}
 	
@@ -277,7 +282,7 @@ string flatten_expression(vector<string> common_nets, vector<string> expressions
 				//cout << "exp:" << expressions.at(i) << endl;
 				//cout << "commo:" << common_nets.at(i) << endl;
 				string what_it_is =  common_nets.at(i);
-				string what_it_will_be = expressions.at(i);
+				string what_it_will_be = "!(" + expressions.at(i) + ")";
 				replace_all(*it2, what_it_is, what_it_will_be);
 				cout << "Result:" << *it2 << endl;
 
