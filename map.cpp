@@ -258,17 +258,19 @@ string flatten_expression(vector<string> common_nets, vector<string> expressions
 	string expression = expressions.front();
 	if (expressions.size() > 1){
 		for (int i = 0 ; i < common_nets.size(); i++){
-			for (int it2 = 0; it2 < expressions.size(); ++it2){
-			if(expressions[it2].find(common_nets[i]) != string::npos){
-				//cout << "it2:" << *it2 << endl;
-				//cout << "exp:" << expressions.at(i) << endl;
-				//cout << "commo:" << common_nets.at(i) << endl;
-				string temp = expressions[it2];
-				string what_it_is =  common_nets[i];
-				string what_it_will_be = "!(" + expressions[i] + ")";
-				replace_all(temp, what_it_is, what_it_will_be);
-				expressions.erase(expressions.begin() + it2);	
-				expression = flatten_expression(common_nets, expressions);
+			for (int j = 0; j < expressions.size(); ++j){
+				if(expressions[j].find(common_nets[i]) != string::npos){
+					cout << "j:" << expressions[j] << endl;
+					cout << "exp:" << expressions.at(i) << endl;
+					cout << "commo:" << common_nets.at(i) << endl;
+					string temp = expressions[j];
+					string what_it_is =  common_nets.at(i);
+					string what_it_will_be = expressions.at(i);
+					replace_all(temp, what_it_is, what_it_will_be);
+					expressions.erase(expressions.begin() + j);
+					expressions.erase(expressions.begin() + i);
+					expressions.push_back(temp);
+					return flatten_expression(common_nets, expressions);
 			}
 			}
 		}	
