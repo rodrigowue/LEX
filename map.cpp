@@ -344,10 +344,12 @@ vector<string> find_arcs(vector<string> in_pins, string expression){
 	string expr = expression;
   	unordered_set<char> literals;
   
-  for (char c : expr) {
-    if (isalpha(c)) {
-      literals.insert(c);
-    }
+  char temp_input = 'A';
+
+  for(string pin: in_pins){
+	replace_all(expr, pin, string(1,temp_input));
+	literals.insert(temp_input);
+	temp_input++;
   }
 
   int numLiterals = literals.size();
@@ -368,7 +370,6 @@ vector<string> find_arcs(vector<string> in_pins, string expression){
 
     // Evaluate the boolean expression
     string local_expression = expr;
-    
     for (size_t i = 0; i < local_expression.size(); ++i) {
         int it = 0;
         for (char c : literals) {
@@ -378,10 +379,8 @@ vector<string> find_arcs(vector<string> in_pins, string expression){
             it++;
         }
     }
-    
     bool result = solve_boolean_expression(local_expression);
     //bool result = !((values[0] + values[1]) * (values[0] * values[1]));
-    
     // Check for transition arcs
     int k = 0;
     for (char c : literals) {
