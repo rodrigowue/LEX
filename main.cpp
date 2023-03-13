@@ -212,7 +212,7 @@ int main(int argc, char** argv)
 		cout << "PDN:" << common_net << "=" << pdn_expression << endl;
 		//Merge eexpressions into one
 		//expressions.push_back("!("+pun_expression+"*"+pdn_expression+")");
-		expressions.push_back("(!" + pun_expression + ")*(!" + pdn_expression + ")");
+		expressions.push_back("!" + pdn_expression);
 	}
 
 	string expression;

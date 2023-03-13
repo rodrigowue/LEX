@@ -221,9 +221,8 @@ string find_expression(int circuit_columns, string common_net, vector<Transistor
 	while (temp_transistor_network.size() > circuit_columns)
 	{
 		//Find Parrallel Transistors and Collapse them into Pseudo Transistors
-		
 		collapse_parallel(circuit_columns, temp_transistor_network);
-		
+    	
 		//If the number of pseudo transistors is the same as the amount of common nets
 		if(temp_transistor_network.size() == circuit_columns){
 			if(temp_transistor_network.size() == 1){
@@ -263,18 +262,21 @@ string find_expression(int circuit_columns, string common_net, vector<Transistor
 	}
 	
 	if (expression==""){
-		for(Transistor t1: transistor_network){
-			if(check_common_net(t1,common_net)){
-				return t1.get_gate();
-			}
-		}
+		for(int i = 0; i < temp_transistor_network.size(); i++){
+						//print_transistor(temp_transistor_network[i]);
+						//cout << common_net << endl;
+						if(check_common_net(temp_transistor_network[i], common_net)){
+							temp_transistor_network[i].set_alias(temp_transistor_network[i].get_gate());
+							return (temp_transistor_network[i]).get_alias();
+					}
+				}
 	}
 	return expression;
 }
 
 string flatten_expression(vector<string> common_nets, vector<string> expressions){
 	string expression = expressions.front();
-	if (expressions.size()>1){
+	if (expressions.size() > 1){
 		for (int i = 0 ; i < common_nets.size(); i++){
 			for (auto it2 = begin(expressions)+1; (it2 != end(expressions)); ++it2){
 			if(it2->find(common_nets.at(i)) != string::npos){
@@ -306,25 +308,28 @@ string flatten_expression(vector<string> common_nets, vector<string> expressions
 
 int solve_boolean_expression(string expression){
 	if (expression.size() > 1){
-		replace_all(expression, "(0+0)", "0");
-		replace_all(expression, "(0+1)", "1");
-		replace_all(expression, "(1+0)", "1");
-		replace_all(expression, "(1+1)", "1");
+		replace_all(expression, "0+0", "0");
+		replace_all(expression, "0+1", "1");
+		replace_all(expression, "1+0", "1");
+		replace_all(expression, "1+1", "1");
 
-		replace_all(expression, "(0*0)", "0");
-		replace_all(expression, "(0*1)", "0");
-		replace_all(expression, "(1*0)", "0");
-		replace_all(expression, "(1*1)", "1");
+		replace_all(expression, "0*0", "0");
+		replace_all(expression, "0*1", "0");
+		replace_all(expression, "1*0", "0");
+		replace_all(expression, "1*1", "1");
 
 		replace_all(expression, "!1", "0");
 		replace_all(expression, "!(1)", "0");
 		replace_all(expression, "!0", "1");
 		replace_all(expression, "!(0)", "1");
+		replace_all(expression, "(0)", "0");
+		replace_all(expression, "(1)", "1");
 		return solve_boolean_expression(expression);
 		}
 	else{
 		return atoi(expression.c_str());
 	}
+	return atoi(expression.c_str());
 }
 
 void replace_all(
