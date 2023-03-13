@@ -79,25 +79,29 @@ bool check_common_net(Transistor& T0, string& common_net){
 	}
 }
 
-bool check_pg_pin(string pin, vector<string>& power_pins, vector<string>& ground_pins){
-		for (int i = 0; i < power_pins.size(); i++){
-			if(pin == power_pins[i]){
+bool check_pg_pin(string pin, vector<string> power_pins, vector<string> ground_pins){
+		for (string power_pin : power_pins){
+			if(pin == power_pin){
 				return false;
 			}
 		}
-		for (int i = 0; i < ground_pins.size(); i++){
-			if(pin == ground_pins[i]){
+		for (string ground_pin : ground_pins){
+			if(pin == ground_pin){
 				return false;
 			}
 		}
 		return true;
 }
 
-bool check_series(Transistor& A, Transistor& B, vector<string>& power_pins, vector<string>& ground_pins){
-	if ( (( A.get_source() == B.get_source() ) & (check_pg_pin(A.get_source()  , power_pins, ground_pins)) & (A.get_drain()  != B.get_drain() )) |
-		 (( A.get_drain() == B.get_drain()   ) & (check_pg_pin(A.get_drain() , power_pins, ground_pins  )) & (A.get_source() != A.get_source())) |
-		 (( A.get_source() == B.get_drain()  ) & (check_pg_pin(A.get_source()  , power_pins, ground_pins)) & (A.get_drain()  != B.get_source())) |
-		 (( A.get_drain() == B.get_source()  ) & (check_pg_pin(A.get_drain() , power_pins, ground_pins  )) & (A.get_source() != B.get_drain() )) ){
+bool check_series(Transistor& A, Transistor& B, vector<string> power_pins, vector<string> ground_pins){
+	string a_src = A.get_source();
+	string b_src = B.get_source();
+	string a_dra = A.get_drain();
+	string b_dra = B.get_drain();
+	if ( (( a_src == b_src ) & (check_pg_pin(a_src, power_pins, ground_pins)) & (a_dra != b_dra)) |
+		 (( a_src == b_dra ) & (check_pg_pin(a_src, power_pins, ground_pins)) & (a_dra != b_src)) |
+		 (( a_dra == b_src ) & (check_pg_pin(a_dra, power_pins, ground_pins)) & (a_src != b_dra)) |
+		 (( a_dra == b_dra ) & (check_pg_pin(a_dra, power_pins, ground_pins)) & (a_src != a_src)) ){
 		return true;
 	}
 	else{
@@ -109,7 +113,7 @@ bool check_series(Transistor& A, Transistor& B, vector<string>& power_pins, vect
 //                            FLATTENING
 // -----------------------------------------------------------------------------------
 
-Transistor merge_parallel(Transistor A, Transistor B){
+Transistor merge_parallel(Transistor& A, Transistor& B){
 		string type = "";
 		string alias = "";
 		string bulk = "";
@@ -130,7 +134,7 @@ Transistor merge_parallel(Transistor A, Transistor B){
 		return group_transistor;
 }
 
-Transistor merge_series(Transistor A, Transistor B, vector<string> power_pins, vector<string> ground_pins){
+Transistor merge_series(Transistor& A, Transistor& B, vector<string>& power_pins, vector<string>& ground_pins){
 		string type = "";
 		string alias = "";
 		string source = "";
@@ -140,27 +144,32 @@ Transistor merge_series(Transistor A, Transistor B, vector<string> power_pins, v
 		double diff_width = 0.0;
 		double gate_lenght = 0.0;
 		int stack = A.get_stack() + B.get_stack();
+		string a_src = A.get_source();
+		string b_src = B.get_source();
+		string a_dra = A.get_drain();
+		string b_dra = B.get_drain();
+		//set alias for the new gate
 		alias.append("(");
 		alias.append(A.get_gate());
 		alias.append("*");
 		alias.append(B.get_gate());
 		alias.append(")");
    		//Find the connecting point and preserve the connection
-   		if ( A.get_source() == B.get_source()){
-			source = B.get_drain();
-			drain  = B.get_drain();
+   		if ( a_src == b_src){
+			source = a_dra;
+			drain  = b_dra;
         	}
-        else if(A.get_drain() == B.get_drain()){
-        	source = A.get_source();
-			drain  = B.get_source();
+        else if(a_src == b_dra){
+        	source = b_src;
+			drain  = a_dra;
         	}
-        else if(A.get_source() == B.get_drain()){
-        	source = A.get_drain();
-			drain  = B.get_source();
+        else if(a_dra == b_src){
+        	source = a_src;
+			drain  = b_dra;
         	}
         else{
-        	source = A.get_source();
-			drain  = B.get_drain();
+        	source = a_src;
+			drain  = b_src;
         }
 		Transistor group_transistor(alias, source, drain, alias, bulk, type, diff_width, fingers, gate_lenght, stack);
 		return group_transistor;
@@ -173,12 +182,11 @@ vector<Transistor> collapse_parallel(int circuit_columns, vector<Transistor>& tr
             Transistor& t2 = transistor_network[j];
 	  				if ((check_parallel(t1,t2))){
 						Transistor group_transistor = merge_parallel(t1, t2);
+						transistor_network.push_back(group_transistor); // insert the merged item
 						transistor_network.erase(transistor_network.begin() + j);
                 		transistor_network.erase(transistor_network.begin() + i);
-						transistor_network.push_back(group_transistor); // insert the merged item
 						if(transistor_network.size() == circuit_columns){
 							return transistor_network;
-							
 						}
 						else{
 							i = -1;
@@ -198,9 +206,9 @@ vector<Transistor> collapse_series(int circuit_columns, vector<Transistor>& tran
             Transistor& t2 = transistor_network[j];
 	  				if ((check_series(t1, t2, power_pins, ground_pins))){
 					Transistor group_transistor = merge_series(t1, t2, power_pins, ground_pins);
+					transistor_network.push_back(group_transistor); // insert the merged item
 					transistor_network.erase(transistor_network.begin() + j);
                 	transistor_network.erase(transistor_network.begin() + i);
-					transistor_network.push_back(group_transistor); // insert the merged item
 					if(transistor_network.size() == circuit_columns){
 						return transistor_network;
 					}
@@ -219,7 +227,7 @@ vector<string> find_expression(int circuit_columns, vector<string> common_nets, 
 	vector<Transistor> temp_transistor_network = transistor_network;
 	//collapse until its is done
 	int it_count = 0;
-	while ((temp_transistor_network.size() > circuit_columns) & (it_count < 255)){
+	while ((temp_transistor_network.size() > circuit_columns) & (it_count < 1000)){
 		//Find Parrallel Transistors and Collapse them into Pseudo Transistors
 		collapse_parallel(circuit_columns, temp_transistor_network);
 		//If the number of pseudo transistors is the same as the amount of common nets
@@ -250,21 +258,17 @@ string flatten_expression(vector<string> common_nets, vector<string> expressions
 	string expression = expressions.front();
 	if (expressions.size() > 1){
 		for (int i = 0 ; i < common_nets.size(); i++){
-			for (auto it2 = begin(expressions)+1; (it2 != end(expressions)); ++it2){
-			if(it2->find(common_nets.at(i)) != string::npos){
+			for (int it2 = 0; it2 < expressions.size(); ++it2){
+			if(expressions[it2].find(common_nets[i]) != string::npos){
 				//cout << "it2:" << *it2 << endl;
 				//cout << "exp:" << expressions.at(i) << endl;
 				//cout << "commo:" << common_nets.at(i) << endl;
-				string what_it_is =  common_nets.at(i);
-				string what_it_will_be = "!(" + expressions.at(i) + ")";
-				replace_all(*it2, what_it_is, what_it_will_be);
-				cout << "Result:" << *it2 << endl;
-
-				for (auto it = begin(expressions)+1; (it != end(expressions)); ++it){
-					if(*it == expressions.at(i)){
-						expressions.erase(it);	
-					};
-				}
+				string temp = expressions[it2];
+				string what_it_is =  common_nets[i];
+				string what_it_will_be = "!(" + expressions[i] + ")";
+				replace_all(temp, what_it_is, what_it_will_be);
+				cout << "Result:" << temp << endl;
+				expressions.erase(expressions.begin() + it2);	
 				expression = flatten_expression(common_nets, expressions);
 			}
 			}

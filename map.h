@@ -19,17 +19,17 @@ bool check_parallel(Transistor& A, Transistor& B);
 
 bool check_common_net(Transistor& T0, string& common_net);
 
-bool check_pg_pin(string pin, vector<string>& power_pins, vector<string>& ground_pins);
+bool check_pg_pin(string pin, vector<string> power_pins, vector<string> ground_pins);
 
-bool check_series(Transistor& A, Transistor& B, vector<string>& power_pins, vector<string>& ground_pins);
+bool check_series(Transistor& A, Transistor& B, vector<string> power_pins, vector<string> ground_pins);
 
 //------------------------- Flattening ------------------------------------
 //-- find and merge parallel
-Transistor merge_parallel(Transistor A, Transistor B);
+Transistor merge_parallel(Transistor& A, Transistor& B);
 vector<Transistor> collapse_parallel(int circuit_columns, vector<Transistor>& transistor_network);
 
 //-- find and merge parallel
-Transistor merge_series(Transistor A, Transistor B, vector<string> power_pins, vector<string> ground_pins);
+Transistor merge_series(Transistor& A, Transistor& B, vector<string>& power_pins, vector<string>& ground_pins);
 vector<Transistor> collapse_series(int circuit_columns, vector<Transistor>& transistor_network, vector<string>& power_pins, vector<string>& ground_pins);
 
 // find the expression.
