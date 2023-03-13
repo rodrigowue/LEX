@@ -202,21 +202,27 @@ int main(int argc, char** argv)
 	}
 
 	int circuit_columns = common_nets.size();
+
+	vector<string> pun_expressions, pdn_expressions;
+
+	pun_expressions = find_expression(circuit_columns, common_nets, PUN, power_pins, ground_pins);
+	for(int i = 0; i < pun_expressions.size(); i++){
+		cout << common_nets[i] << "=" << pun_expressions[i] << endl;
+	}
+	pdn_expressions = find_expression(circuit_columns, common_nets, PDN, power_pins, ground_pins);
+	for(int i = 0; i < pdn_expressions.size(); i++){
+		cout << common_nets[i] << "=" << pdn_expressions[i] << endl;
+	}
+	
+	//Merge PUN and PDN expressions
 	vector<string> expressions;
-	for(string common_net: common_nets){
-		//find PUN expression for each common_net
-		string pun_expression = find_expression(circuit_columns, common_net, PUN, power_pins, ground_pins);
-		cout << "PUN:" << common_net << "=" << pun_expression << endl;
-		//find PDN expression for each common_net
-		string pdn_expression = find_expression(circuit_columns, common_net, PDN, power_pins, ground_pins);
-		cout << "PDN:" << common_net << "=" << pdn_expression << endl;
-		//Merge eexpressions into one
-		//expressions.push_back("!("+pun_expression+"*"+pdn_expression+")");
-		expressions.push_back("!" + pdn_expression);
+	for(int i = 0; i < pun_expressions.size(); i++){
+		//expressions.push_back("!("+pun_expressions[i]+"*"+pdn_expressions[i]+")");
+		expressions.push_back("!(" + pdn_expressions[i]+")");
 	}
 
+	//Deal with sequetial
 	string expression;
-
 	if (expressions.size()==1){
 		expression = expressions.front();
 	}

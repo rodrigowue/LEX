@@ -93,7 +93,7 @@ bool check_pg_pin(string pin, vector<string>& power_pins, vector<string>& ground
 		return true;
 }
 
-bool check_series(Transistor& A, Transistor& B, vector<string>& power_pins, vector<string>& ground_pins, string& common_net){
+bool check_series(Transistor& A, Transistor& B, vector<string>& power_pins, vector<string>& ground_pins){
 	if ( (( A.get_source() == B.get_source() ) & (check_pg_pin(A.get_source()  , power_pins, ground_pins)) & (A.get_drain()  != B.get_drain() )) |
 		 (( A.get_drain() == B.get_drain()   ) & (check_pg_pin(A.get_drain() , power_pins, ground_pins  )) & (A.get_source() != A.get_source())) |
 		 (( A.get_source() == B.get_drain()  ) & (check_pg_pin(A.get_source()  , power_pins, ground_pins)) & (A.get_drain()  != B.get_source())) |
@@ -118,7 +118,7 @@ Transistor merge_parallel(Transistor A, Transistor B){
 		int fingers = 0;
 		double diff_width = 0.0;
 		double gate_lenght = 0.0;
-		int stack = 0;
+		int stack = A.get_stack();
 		alias.append("(");
 		alias.append(A.get_gate());
 		alias.append("+");
@@ -146,15 +146,15 @@ Transistor merge_series(Transistor A, Transistor B, vector<string> power_pins, v
 		alias.append(B.get_gate());
 		alias.append(")");
    		//Find the connecting point and preserve the connection
-   		if ( A.get_source() == B.get_source() & (check_pg_pin(A.get_source(), power_pins, ground_pins))){
-			source = A.get_drain();
+   		if ( A.get_source() == B.get_source()){
+			source = B.get_drain();
 			drain  = B.get_drain();
         	}
-        else if(A.get_drain() == B.get_drain() & (check_pg_pin(A.get_drain(), power_pins, ground_pins))){
+        else if(A.get_drain() == B.get_drain()){
         	source = A.get_source();
 			drain  = B.get_source();
         	}
-        else if(A.get_source() == B.get_drain() & (check_pg_pin(A.get_source(), power_pins, ground_pins))){
+        else if(A.get_source() == B.get_drain()){
         	source = A.get_drain();
 			drain  = B.get_source();
         	}
@@ -191,12 +191,12 @@ vector<Transistor> collapse_parallel(int circuit_columns, vector<Transistor>& tr
 	return transistor_network;
 }
 
-vector<Transistor> collapse_series(int circuit_columns, string common_net, vector<Transistor>& transistor_network, vector<string>& power_pins, vector<string>& ground_pins){
+vector<Transistor> collapse_series(int circuit_columns, vector<Transistor>& transistor_network, vector<string>& power_pins, vector<string>& ground_pins){
 	for (int i = 0; i < transistor_network.size() - 1; i++) {
         Transistor& t1 = transistor_network[i];
         for (int j = i + 1; j < transistor_network.size(); j++) {
             Transistor& t2 = transistor_network[j];
-	  				if ((check_series(t1, t2, power_pins, ground_pins, common_net))){
+	  				if ((check_series(t1, t2, power_pins, ground_pins))){
 					Transistor group_transistor = merge_series(t1, t2, power_pins, ground_pins);
 					transistor_network.erase(transistor_network.begin() + j);
                 	transistor_network.erase(transistor_network.begin() + i);
@@ -214,64 +214,36 @@ vector<Transistor> collapse_series(int circuit_columns, string common_net, vecto
 	return transistor_network;
 }
 
-string find_expression(int circuit_columns, string common_net, vector<Transistor> transistor_network, vector<string>& power_pins, vector<string>& ground_pins){
-	string expression = "";
+vector<string> find_expression(int circuit_columns, vector<string> common_nets, vector<Transistor> transistor_network, vector<string>& power_pins, vector<string>& ground_pins){
+	vector<string> expressions;
 	vector<Transistor> temp_transistor_network = transistor_network;
 	//collapse until its is done
-	while (temp_transistor_network.size() > circuit_columns)
-	{
+	int it_count = 0;
+	while ((temp_transistor_network.size() > circuit_columns) & (it_count < 255)){
 		//Find Parrallel Transistors and Collapse them into Pseudo Transistors
 		collapse_parallel(circuit_columns, temp_transistor_network);
-    	
 		//If the number of pseudo transistors is the same as the amount of common nets
 		if(temp_transistor_network.size() == circuit_columns){
-			if(temp_transistor_network.size() == 1){
-				return (temp_transistor_network.front()).get_gate();
-			}
-			else{
-				for(int i = 0; i < temp_transistor_network.size(); i++){
-						//print_transistor(temp_transistor_network[i]);
-						//cout << common_net << endl;
-						if(check_common_net(temp_transistor_network[i], common_net)){
-							temp_transistor_network[i].set_alias(temp_transistor_network[i].get_gate());
-							return (temp_transistor_network[i]).get_alias();
-					}
-				}
-			}
+			break;
 		}
 		else{
 			//Find Series Transistors and Collapse them into Pseudo Transistors
-			collapse_series(circuit_columns, common_net, temp_transistor_network, power_pins, ground_pins);
-			if(temp_transistor_network.size() == circuit_columns){
-				if(temp_transistor_network.size() == 1){
-				return (temp_transistor_network.front()).get_gate();
-			}
-			else{
-				for(int i = 0; i < temp_transistor_network.size(); i++){
-						//print_transistor(temp_transistor_network[i]);
-						//cout << common_net << endl;
-						if(check_common_net(temp_transistor_network[i], common_net)){
-							temp_transistor_network[i].set_alias(temp_transistor_network[i].get_gate());
-							return (temp_transistor_network[i]).get_alias();
-					}
-				}
-			}
-			}
+			collapse_series(circuit_columns, temp_transistor_network, power_pins, ground_pins);
 		}
-	
+		it_count++;
 	}
 	
-	if (expression==""){
+	for(string common_net: common_nets){
 		for(int i = 0; i < temp_transistor_network.size(); i++){
-						//print_transistor(temp_transistor_network[i]);
-						//cout << common_net << endl;
-						if(check_common_net(temp_transistor_network[i], common_net)){
-							temp_transistor_network[i].set_alias(temp_transistor_network[i].get_gate());
-							return (temp_transistor_network[i]).get_alias();
-					}
+			//print_transistor(temp_transistor_network[i]);
+			//cout << common_net << endl;
+			if(check_common_net(temp_transistor_network[i], common_net)){
+					temp_transistor_network[i].set_alias(temp_transistor_network[i].get_gate());
+					expressions.push_back(temp_transistor_network[i].get_alias());
 				}
+			}
 	}
-	return expression;
+	return expressions;
 }
 
 string flatten_expression(vector<string> common_nets, vector<string> expressions){

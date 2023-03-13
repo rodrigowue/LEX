@@ -21,7 +21,7 @@ bool check_common_net(Transistor& T0, string& common_net);
 
 bool check_pg_pin(string pin, vector<string>& power_pins, vector<string>& ground_pins);
 
-bool check_series(Transistor& A, Transistor& B, vector<string>& power_pins, vector<string>& ground_pins, string& common_net);
+bool check_series(Transistor& A, Transistor& B, vector<string>& power_pins, vector<string>& ground_pins);
 
 //------------------------- Flattening ------------------------------------
 //-- find and merge parallel
@@ -30,10 +30,10 @@ vector<Transistor> collapse_parallel(int circuit_columns, vector<Transistor>& tr
 
 //-- find and merge parallel
 Transistor merge_series(Transistor A, Transistor B, vector<string> power_pins, vector<string> ground_pins);
-vector<Transistor> collapse_series(int circuit_columns, string common_net, vector<Transistor>& transistor_network, vector<string>& power_pins, vector<string>& ground_pins);
+vector<Transistor> collapse_series(int circuit_columns, vector<Transistor>& transistor_network, vector<string>& power_pins, vector<string>& ground_pins);
 
 // find the expression.
-string find_expression(int circuit_columns, string common_net, vector<Transistor> transistor_network, vector<string>& power_pins, vector<string>& ground_pins);
+vector<string> find_expression(int circuit_columns, vector<string> common_nets, vector<Transistor> transistor_network, vector<string>& power_pins, vector<string>& ground_pins);
 
 string flatten_expression(vector<string> common_nets, vector<string> expressions);
 
