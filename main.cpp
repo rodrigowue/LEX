@@ -193,13 +193,16 @@ int main(int argc, char** argv)
 	//Remove Common Nodes from the pin list
 	in_pins = pins;
 	distribute_pins(common_nets, in_pins, out_pins);
-	
+	cout << "----------------------------------------" << endl;
+	cout << "Inputs & Outputs" << endl;
 	for (auto it = begin(in_pins); it != end(in_pins); ++it){
 		cout << "input:" << *it << endl;
 	}
 	for (auto it = begin(out_pins); it != end(out_pins); ++it){
 		cout << "output:" << *it << endl;
 	}
+
+	cout << "----------------------------------------" << endl;
 
 	int circuit_columns = common_nets.size();
 
@@ -229,23 +232,8 @@ int main(int argc, char** argv)
 	else{
 		expression = flatten_expression(common_nets,expressions);
 	}
-    
-	/*cout << "----------------------------------------" << endl;
-	cout << "PDN Expression: " << find_expression(PDN) << endl;
-	cout << "PUN Expression: " << find_expression(PUN) << endl;
 	cout << "----------------------------------------" << endl;
-	
-	
-	//expression = !(PUN)*PDN
-	
-	expression.append("!(");
-	expression.append(find_expression(PUN));
-	expression.append("*");
-	expression.append(find_expression(PDN));
-	expression.append(")");
-	*/
-
-	cout << "Expression: " << expression << endl; 
+    cout << "Expression After Flattening: " << expression << endl;
 	
 	cout << "----------------------------------------" << endl;
 	cout << "TRUTH TABLE:" << endl;

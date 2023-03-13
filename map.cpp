@@ -267,7 +267,6 @@ string flatten_expression(vector<string> common_nets, vector<string> expressions
 				string what_it_is =  common_nets[i];
 				string what_it_will_be = "!(" + expressions[i] + ")";
 				replace_all(temp, what_it_is, what_it_will_be);
-				cout << "Result:" << temp << endl;
 				expressions.erase(expressions.begin() + it2);	
 				expression = flatten_expression(common_nets, expressions);
 			}
