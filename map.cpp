@@ -37,7 +37,6 @@ vector<string> remove_pin(vector<string> pin_list, string pin){
 }
 
 void distribute_pins(vector<string>& common_nets, vector<string>& in_pins, vector<string>& out_pins){
-	vector<string> in_pins_tmp;
 	for (string common_net: common_nets){
 		for (string pin : in_pins){
 			if(common_net == pin){
