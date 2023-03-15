@@ -146,7 +146,7 @@ int main(int argc, char** argv)
 	   }
 
 	
-    int x=0;
+    /*int x=0;
     cout << "----------------------------------------" << endl;
     cout << "PMOS:" << endl;
     for (auto it = begin(PUN); it != end(PUN); ++it){
@@ -158,46 +158,20 @@ int main(int argc, char** argv)
     for (auto it = begin(PDN); it != end(PDN); ++it){
       cout << x << ":" << it->get_alias() << " " << it->get_source() << " " << it->get_gate() << " " << it->get_drain() << endl;
       x++;
-    }
+    }*/
 	
 	//Get All PDN and PUN Common Nodes
-	
-	for (Transistor p_transistor : PUN){
-		string p_src = p_transistor.get_source();
-		string p_dra = p_transistor.get_drain();
-	  	for (Transistor n_transistor : PDN){
-			string n_src = n_transistor.get_source();
-			string n_dra = n_transistor.get_drain();
-      		if (p_src == n_src){
-				//cout << p_src << "=" << n_src << endl;
-				common_nets.push_back(p_src);
-			}
-			else if(p_src == n_dra){
-				//cout << p_src  << "=" << n_dra << endl;
-				common_nets.push_back(p_src);
-			}
-			else if(p_dra == n_src){
-				//cout << p_dra << "=" << n_src << endl;
-				common_nets.push_back(p_dra);
-			}
-			else if(p_dra == n_dra){
-				//cout << p_dra << "=" << n_dra << endl;
-				common_nets.push_back(p_dra);
-    		}
-			else{
-			}
-    	}
-	}
-	//Remove Duplicates
-	sort(common_nets.begin(), common_nets.end());
-    common_nets.erase(std::unique(common_nets.begin(), common_nets.end()), common_nets.end());
+	common_nets = fetch_common_nets(PDN,PUN);
 	
 	
 	//Remove Common Nodes from the pin list
 	in_pins = pins;
 	distribute_pins(common_nets, in_pins, out_pins);
+
+
+	//Print Inputs and Outputs
 	cout << "----------------------------------------" << endl;
-	cout << "Inputs & Outputs" << endl;
+	cout << "Inputs & Outputs\n" << endl;
 	for (auto it = begin(in_pins); it != end(in_pins); ++it){
 		cout << "input:" << *it << endl;
 	}
@@ -207,15 +181,23 @@ int main(int argc, char** argv)
 
 	cout << "----------------------------------------" << endl;
 
+	//circuit columns is the amount of common nets in a circuit
 	int circuit_columns = common_nets.size();
 
-	vector<string> pun_expressions, pdn_expressions;
+	//find the expression for the PUN
+	vector<string> pun_expressions = find_expression(circuit_columns, common_nets, PUN, power_pins, ground_pins);
 
-	pun_expressions = find_expression(circuit_columns, common_nets, PUN, power_pins, ground_pins);
+	//print results for the pull up network
+	cout << "PUN Expressions:" << endl;
 	for(int i = 0; i < pun_expressions.size(); i++){
 		cout << common_nets[i] << "=" << pun_expressions[i] << endl;
 	}
-	pdn_expressions = find_expression(circuit_columns, common_nets, PDN, power_pins, ground_pins);
+	
+	//find the expression for the PDN
+	vector<string> pdn_expressions = find_expression(circuit_columns, common_nets, PDN, power_pins, ground_pins);
+
+	//print results for the pull down network
+	cout << "\nPDN Expressions:" << endl;
 	for(int i = 0; i < pdn_expressions.size(); i++){
 		cout << common_nets[i] << "=" << pdn_expressions[i] << endl;
 	}
@@ -236,11 +218,12 @@ int main(int argc, char** argv)
 		expression = flatten_expression(common_nets,expressions);
 	}
 	cout << "----------------------------------------" << endl;
-    cout << "Expression After Flattening: " << expression << endl;
+    cout << "Expression After Flattening: \n" << expression << endl;
 	
 	cout << "----------------------------------------" << endl;
 	cout << "TRUTH TABLE:" << endl;
 	truth_table(in_pins, expression);
+	cout << "----------------------------------------" << endl;
 	cout << "ARCS:" << endl;
 	arcs = find_arcs(in_pins, expression);
 	cout << "----------------------------------------" << endl;

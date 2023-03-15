@@ -10,6 +10,8 @@ void print_logo();
 void print_transistor(Transistor& t1);
 
 //------------------------- Pin Related -----------------------------------
+vector<string> fetch_common_nets(vector<Transistor>& PDN, vector<Transistor>& PUN);
+
 vector<string> remove_pin(vector<string> pin_list, string pin);
 
 void distribute_pins(vector<string>& common_nets, vector<string>& in_pins, vector<string>& out_pins);

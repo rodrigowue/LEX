@@ -1,6 +1,7 @@
 #include "map.h"
 #include "transistor.h"
 #include <unordered_set>
+#include <bits/stdc++.h>
 #include <vector>
 #include <math.h>
 using namespace std;
@@ -21,6 +22,40 @@ void print_transistor(Transistor& t1){
 	cout << "-------------------------" << endl;
 
 };
+
+vector<string> fetch_common_nets(vector<Transistor>& PDN, vector<Transistor>& PUN){
+	vector<string> common_nets;
+	for (Transistor p_transistor : PUN){
+		string p_src = p_transistor.get_source();
+		string p_dra = p_transistor.get_drain();
+	  	for (Transistor n_transistor : PDN){
+			string n_src = n_transistor.get_source();
+			string n_dra = n_transistor.get_drain();
+      		if (p_src == n_src){
+				//cout << p_src << "=" << n_src << endl;
+				common_nets.push_back(p_src);
+			}
+			else if(p_src == n_dra){
+				//cout << p_src  << "=" << n_dra << endl;
+				common_nets.push_back(p_src);
+			}
+			else if(p_dra == n_src){
+				//cout << p_dra << "=" << n_src << endl;
+				common_nets.push_back(p_dra);
+			}
+			else if(p_dra == n_dra){
+				//cout << p_dra << "=" << n_dra << endl;
+				common_nets.push_back(p_dra);
+    		}
+			else{
+			}
+    	}
+	}
+	//Remove Duplicates
+	sort(common_nets.begin(), common_nets.end());
+    common_nets.erase(std::unique(common_nets.begin(), common_nets.end()), common_nets.end());
+	return common_nets;
+}
 
 vector<string> remove_pin(vector<string> pin_list, string pin){
 	for (auto it_rm = begin(pin_list); it_rm != end(pin_list); ){
