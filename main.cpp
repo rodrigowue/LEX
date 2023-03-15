@@ -163,26 +163,29 @@ int main(int argc, char** argv)
 	//Get All PDN and PUN Common Nodes
 	
 	for (Transistor p_transistor : PUN){
-	  for (Transistor n_transistor : PDN){
-      	if (p_transistor.get_source() == n_transistor.get_source()){
-			//cout << p_transistor.get_source() << "=" << n_transistor.get_source() << endl;
-			common_nets.push_back(p_transistor.get_source());
-		}
-		else if(p_transistor.get_source() == n_transistor.get_drain()){
-			//cout << p_transistor.get_source()  << "=" << n_transistor.get_drain() << endl;
-			common_nets.push_back(p_transistor.get_source());
-		}
-		else if(p_transistor.get_drain() == n_transistor.get_source()){
-			//cout << p_transistor.get_drain() << "=" << n_transistor.get_source() << endl;
-			common_nets.push_back(p_transistor.get_drain());
-		}
-		else if(p_transistor.get_drain() == n_transistor.get_drain()){
-			//cout << p_transistor.get_drain() << "=" << n_transistor.get_drain() << endl;
-			common_nets.push_back(p_transistor.get_drain());
-    	}
-		else{
-
-		}
+		string p_src = p_transistor.get_source();
+		string p_dra = p_transistor.get_drain();
+	  	for (Transistor n_transistor : PDN){
+			string n_src = n_transistor.get_source();
+			string n_dra = n_transistor.get_drain();
+      		if (p_src == n_src){
+				//cout << p_src << "=" << n_src << endl;
+				common_nets.push_back(p_src);
+			}
+			else if(p_src == n_dra){
+				//cout << p_src  << "=" << n_dra << endl;
+				common_nets.push_back(p_src);
+			}
+			else if(p_dra == n_src){
+				//cout << p_dra << "=" << n_src << endl;
+				common_nets.push_back(p_dra);
+			}
+			else if(p_dra == n_dra){
+				//cout << p_dra << "=" << n_dra << endl;
+				common_nets.push_back(p_dra);
+    		}
+			else{
+			}
     	}
 	}
 	//Remove Duplicates
