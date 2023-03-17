@@ -1,4 +1,4 @@
-# S²CAE - SPICE STD-CELL ARCS EXTRACTOR
+# LEX - SPICE STD-CELL ARCS EXTRACTOR
 ```
   ____  ___  ____     _    _____ 
  / ___||_  )/ ___|   / \  | ____|
