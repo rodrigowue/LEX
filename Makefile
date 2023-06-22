@@ -6,7 +6,7 @@ SRC     := src
 INCLUDE := include
 
 LIBRARIES   := map.cpp transistor.cpp
-EXECUTABLE  := s2cae
+EXECUTABLE  := lex
 
 
 all: $(EXECUTABLE)

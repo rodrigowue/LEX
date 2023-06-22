@@ -1,14 +1,4 @@
 # LEX - SPICE STD-CELL ARCS EXTRACTOR
-```
-  ____  ___  ____     _    _____ 
- / ___||_  )/ ___|   / \  | ____|
- \___ \ / /| |      / _ \ |  _|  
-  ___) /___| |___  / ___ \| |___ 
- |____/     \____|/_/   \_\_____|
- SPICE STD-CELL ARCS EXTRACTOR
-       [UNDER DEVELOPMENT]
-
-```
 
 
 This tool is ment to extract arcs from Pull-Down (PDN) and Pull-up Networks (PUN) while analysing a node-graph representation.
@@ -17,7 +7,7 @@ To run:
 
 ```
 make
-./s2cae <spice file>
+./lex <spice file>
 ```
 
 or
@@ -31,19 +21,26 @@ By running the spice_files/nand3.sp example the tool outputs:
 
 ```
 ======================================
- SPICE STD-CELL ARCS EXTRACTOR
+ SPICE STD-CELL TIMING ARCS EXTRACTOR
        [UNDER DEVELOPMENT]
 ======================================
 Subcircuit:NAND3D0BWP
+----------------------------------------
+Inputs & Outputs
+
 input:A
 input:B
 input:C
 output:OUT
 ----------------------------------------
-PDN Expression: (C*(A*B))
-PUN Expression: (C+(A+B))
+PUN Expressions:
+OUT=(C*(A*B))
+
+PDN Expressions:
+OUT=(C*(A*B))
 ----------------------------------------
-Expression: !((C+(A+B))*(C*(A*B)))
+Expression After Flattening: 
+!((C*(A*B)))*!((C*(A*B)))
 ----------------------------------------
 TRUTH TABLE:
 000|1
@@ -54,6 +51,7 @@ TRUTH TABLE:
 101|1
 011|1
 111|0
+----------------------------------------
 ARCS:
 Number of literals: 3
 1 1 F  | Rise

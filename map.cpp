@@ -148,7 +148,7 @@ bool check_series(Transistor& A, Transistor& B, vector<string> power_pins, vecto
 // -----------------------------------------------------------------------------------
 
 Transistor merge_parallel(Transistor& A, Transistor& B){
-		string type = "";
+		string type = A.get_type();
 		string alias = "";
 		string bulk = "";
 		string source = "";
@@ -159,7 +159,12 @@ Transistor merge_parallel(Transistor& A, Transistor& B){
 		int stack = A.get_stack();
 		alias.append("(");
 		alias.append(A.get_gate());
-		alias.append("+");
+		if (A.get_type()=="PMOS"){
+			alias.append("*");	
+		}
+		else{
+			alias.append("+");
+		}
 		alias.append(B.get_gate());
 		alias.append(")");
         source = A.get_source();
@@ -169,7 +174,7 @@ Transistor merge_parallel(Transistor& A, Transistor& B){
 }
 
 Transistor merge_series(Transistor& A, Transistor& B, vector<string>& power_pins, vector<string>& ground_pins){
-		string type = "";
+		string type = A.get_type();
 		string alias = "";
 		string source = "";
 		string bulk = "";
@@ -185,7 +190,12 @@ Transistor merge_series(Transistor& A, Transistor& B, vector<string>& power_pins
 		//set alias for the new gate
 		alias.append("(");
 		alias.append(A.get_gate());
-		alias.append("*");
+		if (A.get_type()=="PMOS"){
+			alias.append("+");	
+		}
+		else{
+			alias.append("*");
+		}
 		alias.append(B.get_gate());
 		alias.append(")");
    		//Find the connecting point and preserve the connection

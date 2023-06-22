@@ -129,12 +129,12 @@ int main(int argc, char** argv)
 				}
 			}
 			if((type[0]=='P')|(type[0]=='p')|(type.find("pfet") != string::npos)|(type.find("pch") != string::npos)|(type.find("P12") != string::npos)){
-				Transistor p_transistor(alias, source, drain, gate, bulk, type, diff_width, fingers, gate_lenght, stack);
+				Transistor p_transistor(alias, source, drain, gate, bulk, "PMOS", diff_width, fingers, gate_lenght, stack);
 				PUN.push_back(p_transistor);
 				//cout << "PMOS ADDED TO PUN LIST" << endl;
 			}
 			else{
-				Transistor n_transistor(alias, source, drain,	gate, bulk,	type, diff_width, fingers, gate_lenght, stack);
+				Transistor n_transistor(alias, source, drain,	gate, bulk,	"NMOS", diff_width, fingers, gate_lenght, stack);
 				PDN.push_back(n_transistor);
 				//cout << "NMOS ADDED TO PDN LIST" << endl;
 			}
@@ -206,7 +206,7 @@ int main(int argc, char** argv)
 	vector<string> expressions;
 	for(int i = 0; i < pun_expressions.size(); i++){
 		//expressions.push_back("!("+pun_expressions[i]+"*"+pdn_expressions[i]+")");
-		expressions.push_back("!(" + pdn_expressions[i]+")");
+		expressions.push_back("!(" + pdn_expressions[i]+")"+"*"+"!(" + pun_expressions[i]+")");
 	}
 
 	//Deal with sequetial
