@@ -1,5 +1,10 @@
 # LEX - SPICE STD-CELL ARCS EXTRACTOR
 
+## Please, Cite the Paper
+
+R. N. Wuerdig, V. H. Maciel, R. Reis and S. Bampi, "LEX - A Cell Switching Arcs Extractor: A Simple SPICE-Input Interface for Electrical Characterization," 2023 IEEE Computer Society Annual Symposium on VLSI (ISVLSI), Foz do Iguacu, Brazil, 2023, pp. 1-6, doi: 10.1109/ISVLSI59464.2023.10238671.
+
+## About
 
 This tool is ment to extract arcs from Pull-Down (PDN) and Pull-up Networks (PUN) while analysing a node-graph representation.
 
@@ -64,10 +69,6 @@ R 1 1  | Fall
 ```
 A <*>.arcs file is generated as an output.
 
-
-## Paper
-
-R. N. Wuerdig, V. H. Maciel, R. Reis and S. Bampi, "LEX - A Cell Switching Arcs Extractor: A Simple SPICE-Input Interface for Electrical Characterization," 2023 IEEE Computer Society Annual Symposium on VLSI (ISVLSI), Foz do Iguacu, Brazil, 2023, pp. 1-6, doi: 10.1109/ISVLSI59464.2023.10238671.
 
 
 ## Future Work
