@@ -6,7 +6,7 @@ R. N. Wuerdig, V. H. Maciel, R. Reis and S. Bampi, "LEX - A Cell Switching Arcs 
 
 ## About
 
-This tool is ment to extract arcs from Pull-Down (PDN) and Pull-up Networks (PUN) while analysing a node-graph representation.
+This tool is ment to extract arcs from Pull-Down (PDN) and Pull-up Networks (PUN) while analysing a node-graph representation. This tool is part of a standard-cell characterization suite (FUTURE WORK).
 
 To run:
 
@@ -69,11 +69,4 @@ R 1 1  | Fall
 ```
 A <*>.arcs file is generated as an output.
 
-
-
-## Future Work
-
-This tool is currently feeding a characterization tool that is being developed under the following repo:
-
-https://github.com/rodrigowue/DPAC
 
