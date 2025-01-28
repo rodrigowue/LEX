@@ -1,5 +1,7 @@
 # LEX - SPICE STD-CELL ARCS EXTRACTOR
 
+DEPRECATED - NEW VERSION WILL BE RELEASED @ github.com/rodrigowue/pyLEX
+
 ## Please, Cite the Paper
 
 R. N. Wuerdig, V. H. Maciel, R. Reis and S. Bampi, "LEX - A Cell Switching Arcs Extractor: A Simple SPICE-Input Interface for Electrical Characterization," 2023 IEEE Computer Society Annual Symposium on VLSI (ISVLSI), Foz do Iguacu, Brazil, 2023, pp. 1-6, doi: 10.1109/ISVLSI59464.2023.10238671.
